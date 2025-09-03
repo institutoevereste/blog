@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feedback - Instituto Evereste</title>
+
+    <!-- Tailwind CSS from CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts: Nunito -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Chart.js from CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+
+
+    <!-- Custom Styles -->
+    <style>
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: #f8fafc; /* bg-slate-50 */
+        }
+
+        /* Animated Gradient Background */
+        @keyframes gradient-animation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .animated-gradient {
+            background: linear-gradient(-45deg, #4f46e5, #7c3aed, #2563eb, #8b5cf6);
+            background-size: 400% 400%;
+            animation: gradient-animation 15s ease infinite;
+        }
+
+        /* Button Hover Effect */
+        .btn-hover {
+            transition: all 0.2s ease-in-out;
+        }
+        .btn-hover:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Modal Popup Animation */
+        .modal-popup {
+            animation: popup 0.3s ease-out forwards;
+        }
+        @keyframes popup {
+            from {
+                opacity: 0;
+                transform: translateY(20px) scale(0.98);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        
+        /* Notification Toast Animation */
+        .toast-in {
+            animation: toast-in 0.5s ease-out forwards;
+        }
+        .toast-out {
+            animation: toast-out 0.5s ease-in forwards;
+        }
+        @keyframes toast-in {
+            from {
+                opacity: 0;
+                transform: translateX(100%);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        @keyframes toast-out {
+            from {
+                opacity: 1;
+                transform: translateX(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateX(100%);
+            }
+        }
+
+        /* Custom Scrollbar for Dashboard Lists */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f5f9; /* bg-slate-100 */
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: #cbd5e1; /* bg-slate-300 */
+            border-radius: 20px;
+            border: 3px solid #f1f5f9;
+        }
+        .custom-scrollbar {
+            scrollbar-width: thin;
+            scrollbar-color: #cbd5e1 #f1f5f9;
+        }
+    </style>
+</head>
+<body>
+    
+    <!-- Global Error Banner -->
+    <div id="error-banner" class="hidden sticky top-0 left-0 right-0 bg-red-600 text-white text-center p-2 z-50">
+        <span id="error-banner-message"></span>
+        <button onclick="this.parentElement.classList.add('hidden')" class="absolute top-1/2 right-4 -translate-y-1/2 font-bold">X</button>
+    </div>
+
+    <!-- =================================================================== -->
+    <!-- ====                  PUBLIC VIEW (HERO PAGE)                    ==== -->
+    <!-- =================================================================== -->
+    <div id="public-view">
+        <!-- Hero Section -->
+        <header class="relative min-h-screen flex flex-col items-center justify-center text-white p-6 animated-gradient">
+            <!-- Admin Access Icon -->
+            <div class="absolute top-6 right-6">
+                <button id="open-admin-login-btn" class="p-2 rounded-full text-white/70 hover:text-white hover:bg-white/10 transition-colors" aria-label="Acessar painel do administrador">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 0 2l-.15.08a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.38a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1 0-2l.15-.08a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+                </button>
+            </div>
+
+            <div class="text-center max-w-4xl">
+                <h1 class="text-4xl md:text-6xl font-extrabold tracking-tight mb-4">Sua opinião constrói o futuro do Evereste</h1>
+                <p class="text-lg md:text-xl text-white/80 max-w-2xl mx-auto">
+                    Seja para avaliar um atendimento ou para celebrar uma conquista, seu feedback é a nossa maior inspiração.
+                </p>
+                <div class="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
+                    <button id="open-evaluation-btn" class="btn-hover w-full sm:w-auto text-lg font-bold bg-white text-purple-700 px-8 py-3 rounded-full shadow-lg">
+                        Avaliar o Evereste
+                    </button>
+                    <button id="open-praise-btn" class="btn-hover w-full sm:w-auto text-lg font-bold bg-white/20 border-2 border-white px-8 py-3 rounded-full backdrop-blur-sm">
+                        Elogiômetro
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Footer -->
+        <footer class="bg-gray-800 text-gray-400 py-8">
+            <div class="container mx-auto px-6 text-center">
+                <p class="text-lg font-semibold text-white mb-4">Onde tem tecnologia, tem Evereste!</p>
+                <div class="flex justify-center space-x-6 mb-4">
+                    <a href="#" target="_blank" class="hover:text-white transition-colors" aria-label="Instagram"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg></a>
+                    <a href="#" target="_blank" class="hover:text-white transition-colors" aria-label="LinkedIn"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg></a>
+                    <a href="#" target="_blank" class="hover:text-white transition-colors" aria-label="YouTube"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z"></path><polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"></polygon></svg></a>
+                </div>
+                <p class="text-sm">&copy; 2024 Instituto Evereste. Todos os direitos reservados.</p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- =================================================================== -->
+    <!-- ====                  ADMIN DASHBOARD VIEW                     ==== -->
+    <!-- =================================================================== -->
+    <div id="admin-dashboard" class="hidden min-h-screen bg-slate-100 p-4 sm:p-6 lg:p-8">
+        <div class="container mx-auto">
+            <div class="flex flex-wrap justify-between items-center mb-6 gap-4">
+                <h1 class="text-3xl font-bold text-slate-800">Dashboard de Feedback</h1>
+                <button id="logout-btn" class="font-semibold text-indigo-600 hover:text-indigo-800 transition-colors">Sair</button>
+            </div>
+
+            <!-- Evaluations Section -->
+            <section id="evaluations-section" class="mb-8">
+                <h2 class="text-2xl font-semibold text-slate-700 mb-4">Análise de Avaliações</h2>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+                    <div class="bg-white p-6 rounded-lg shadow">
+                        <h3 class="text-slate-500 font-semibold">Total de Respostas</h3>
+                        <p id="total-evaluations" class="text-4xl font-bold text-indigo-600">0</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow md:col-span-3">
+                        <label for="profile-filter" class="text-slate-500 font-semibold mb-2 block">Filtrar por Perfil</label>
+                        <select id="profile-filter" class="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                            <option value="all">Todos os Perfis</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-6">
+                    <!-- NEW: Profile Pie Chart -->
+                    <div class="bg-white p-6 rounded-lg shadow">
+                        <h3 class="font-semibold text-slate-700 mb-4">Distribuição por Perfil</h3>
+                        <div class="h-80 w-full flex items-center justify-center"><canvas id="profile-pie-chart"></canvas></div>
+                    </div>
+                    <!-- NEW: Time Series Chart -->
+                    <div class="bg-white p-6 rounded-lg shadow">
+                        <h3 class="font-semibold text-slate-700 mb-4">Volume de Avaliações por Dia</h3>
+                        <div class="h-80"><canvas id="time-series-chart"></canvas></div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                    <!-- Infrastructure Chart -->
+                    <div class="bg-white p-6 rounded-lg shadow">
+                        <h3 class="font-semibold text-slate-700 mb-4">Infraestrutura e Organização</h3>
+                        <div class="h-96"><canvas id="infra-chart"></canvas></div>
+                    </div>
+                    <!-- NPS Chart -->
+                    <div class="bg-white p-6 rounded-lg shadow">
+                        <h3 class="font-semibold text-slate-700 mb-4">Net Promoter Score (NPS)</h3>
+                        <div class="h-96"><canvas id="nps-chart"></canvas></div>
+                    </div>
+                </div>
+
+                <!-- Comments Section -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                    <div class="bg-white p-6 rounded-lg shadow">
+                        <h3 class="font-semibold text-slate-700 mb-4">O que mais gostaram?</h3>
+                        <div id="likes-list" class="h-64 overflow-y-auto space-y-3 custom-scrollbar pr-2">
+                            <p class="text-slate-500">Nenhum comentário ainda.</p>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow">
+                        <h3 class="font-semibold text-slate-700 mb-4">Sugestões e Melhorias</h3>
+                        <div id="suggestions-list" class="h-64 overflow-y-auto space-y-3 custom-scrollbar pr-2">
+                            <p class="text-slate-500">Nenhuma sugestão ainda.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Praises Section -->
+            <section id="praises-section">
+                <h2 class="text-2xl font-semibold text-slate-700 mb-4">Elogiômetro</h2>
+                <div class="bg-white p-6 rounded-lg shadow mb-6">
+                    <h3 class="text-slate-500 font-semibold">Total de Elogios</h3>
+                    <p id="total-praises" class="text-4xl font-bold text-amber-500">0</p>
+                </div>
+                <div id="praises-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <p class="text-slate-500 col-span-full">Nenhum elogio recebido ainda.</p>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <!-- =================================================================== -->
+    <!-- ====                       MODALS & TOASTS                     ==== -->
+    <!-- =================================================================== -->
+
+    <!-- Modal: Evaluation Form -->
+    <div id="evaluation-modal" class="hidden fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50 backdrop-blur-sm">
+        <form id="evaluation-form" class="modal-popup bg-white rounded-lg shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div class="p-6 border-b border-slate-200">
+                <h2 class="text-2xl font-bold text-slate-800">Avaliar o Evereste</h2>
+                <p class="text-slate-500">Sua perspectiva é fundamental para nosso crescimento.</p>
+            </div>
+            <div class="p-6 space-y-6">
+                <!-- Profile -->
+                <div>
+                    <label class="font-semibold text-slate-700 block mb-2">1. Qual seu perfil de visitante? <span class="text-red-500">*</span></label>
+                    <div id="profile-options" class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                        <!-- Checkbox options will be inserted here by JS -->
+                    </div>
+                    <p id="profile-error" class="text-red-500 text-sm mt-1 hidden">Selecione ao menos um perfil.</p>
+                </div>
+                <!-- Infrastructure -->
+                <div>
+                    <label class="font-semibold text-slate-700 block mb-2">2. Como você avalia nossa infraestrutura e organização? <span class="text-red-500">*</span></label>
+                    <div id="infra-questions" class="space-y-4">
+                        <!-- Radio button questions will be inserted here by JS -->
+                    </div>
+                    <p id="infra-error" class="text-red-500 text-sm mt-2 hidden">Por favor, responda a todas as perguntas.</p>
+                </div>
+                <!-- Likes -->
+                <div>
+                    <label for="likes" class="font-semibold text-slate-700 block mb-2">3. O que mais você gostou?</label>
+                    <textarea id="likes" name="likes" rows="3" class="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="Ex: A recepção calorosa, a qualidade do café, a palestra..."></textarea>
+                </div>
+                <!-- NPS -->
+                <div>
+                    <label for="nps" class="font-semibold text-slate-700 block mb-2">4. Em uma escala de 0 a 10, quanto você indicaria o Evereste para um amigo ou colega? <span class="text-red-500">*</span></label>
+                    <select id="nps" name="nps" class="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                        <option value="">Selecione uma nota</option>
+                        <!-- NPS options 0-10 will be inserted here by JS -->
+                    </select>
+                    <p id="nps-error" class="text-red-500 text-sm mt-1 hidden">Por favor, selecione uma nota.</p>
+                </div>
+                <!-- Suggestions -->
+                <div>
+                    <label for="suggestions" class="font-semibold text-slate-700 block mb-2">5. Você tem alguma sugestão ou oportunidade de melhoria para nós?</label>
+                    <textarea id="suggestions" name="suggestions" rows="3" class="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="Toda sugestão é bem-vinda!"></textarea>
+                </div>
+            </div>
+            <div class="p-6 bg-slate-50 flex items-center justify-end gap-4 rounded-b-lg">
+                <button type="button" class="close-modal-btn font-semibold text-slate-600 hover:text-slate-800">Cancelar</button>
+                <button type="submit" class="bg-indigo-600 text-white font-bold px-6 py-2 rounded-lg hover:bg-indigo-700 transition-colors flex items-center gap-2 disabled:opacity-50" id="submit-evaluation-btn">
+                    <span id="submit-evaluation-spinner" class="hidden w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                    Enviar Avaliação
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Modal: Praise Form -->
+    <div id="praise-modal" class="hidden fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50 backdrop-blur-sm">
+        <form id="praise-form" class="modal-popup bg-white rounded-lg shadow-2xl w-full max-w-lg">
+            <div class="p-6 border-b border-slate-200">
+                <h2 class="text-2xl font-bold text-slate-800">Elogiômetro</h2>
+                <p class="text-slate-500">Reconheça quem fez a diferença na sua experiência.</p>
+            </div>
+            <div class="p-6 space-y-4">
+                <div>
+                    <label for="praise-recipient" class="font-semibold text-slate-700 block mb-1">Para quem é o elogio? <span class="text-red-500">*</span></label>
+                    <input type="text" id="praise-recipient" name="recipient" required class="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="Nome do colaborador ou equipe">
+                </div>
+                <div>
+                    <label for="praise-department" class="font-semibold text-slate-700 block mb-1">Setor do colaborador <span class="text-red-500">*</span></label>
+                    <input type="text" id="praise-department" name="department" required class="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="Ex: Recepção, TI, Eventos">
+                </div>
+                <div>
+                    <label for="praise-reason" class="font-semibold text-slate-700 block mb-1">Motivo do Reconhecimento <span class="text-red-500">*</span></label>
+                    <textarea id="praise-reason" name="reason" rows="4" required class="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="Descreva o que motivou seu elogio"></textarea>
+                </div>
+                 <div>
+                    <label for="praise-author" class="font-semibold text-slate-700 block mb-1">Seu nome (Opcional)</label>
+                    <input type="text" id="praise-author" name="author" class="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="Deixe em branco para enviar anonimamente">
+                </div>
+            </div>
+            <div class="p-6 bg-slate-50 flex items-center justify-end gap-4 rounded-b-lg">
+                <button type="button" class="close-modal-btn font-semibold text-slate-600 hover:text-slate-800">Cancelar</button>
+                <button type="submit" class="bg-amber-500 text-white font-bold px-6 py-2 rounded-lg hover:bg-amber-600 transition-colors">Enviar Elogio</button>
+            </div>
+        </form>
+    </div>
+    
+    <!-- Modal: Thank You / LGPD -->
+    <div id="thank-you-modal" class="hidden fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50 backdrop-blur-sm">
+        <div class="modal-popup bg-white rounded-lg shadow-2xl w-full max-w-md text-center p-8">
+            <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-4">
+                <svg class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
+            </div>
+            <h2 class="text-2xl font-bold text-slate-800">Sua opinião foi enviada!</h2>
+            <p class="text-slate-600 mt-2 mb-4">Agradecemos por dedicar seu tempo para nos avaliar. Seu feedback é muito valioso.</p>
+            <p class="text-xs text-slate-400">
+                <strong>Aviso de Privacidade (LGPD):</strong> Seus dados são coletados de forma anônima e utilizados exclusivamente para fins estatísticos de melhoria interna. Não compartilhamos suas respostas individuais.
+            </p>
+            <button class="close-modal-btn mt-6 w-full bg-indigo-600 text-white font-bold px-6 py-2 rounded-lg hover:bg-indigo-700 transition-colors">Fechar</button>
+        </div>
+    </div>
+    
+    <!-- Modal: Admin Login -->
+    <div id="admin-login-modal" class="hidden fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50 backdrop-blur-sm">
+        <form id="admin-login-form" class="modal-popup bg-white rounded-lg shadow-2xl w-full max-w-sm">
+            <div class="p-6 border-b border-slate-200">
+                <h2 class="text-2xl font-bold text-slate-800">Acesso Restrito</h2>
+                <p class="text-slate-500">Insira a senha de administrador.</p>
+            </div>
+            <div class="p-6 space-y-4">
+                <div>
+                    <label for="admin-password" class="font-semibold text-slate-700 block mb-1">Senha</label>
+                    <input type="password" id="admin-password" name="password" required class="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                    <p id="admin-error" class="text-red-500 text-sm mt-1 hidden">Senha incorreta. Tente novamente.</p>
+                </div>
+            </div>
+            <div class="p-6 bg-slate-50 flex items-center justify-end gap-4 rounded-b-lg">
+                <button type="button" class="close-modal-btn font-semibold text-slate-600 hover:text-slate-800">Cancelar</button>
+                <button type="submit" class="bg-indigo-600 text-white font-bold px-6 py-2 rounded-lg hover:bg-indigo-700 transition-colors">Entrar</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast-notification" class="hidden fixed top-6 right-6 bg-green-500 text-white py-3 px-5 rounded-lg shadow-lg z-50 flex items-center gap-3">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+        <span>Elogio enviado com sucesso!</span>
+    </div>
+
+
+    <!-- =================================================================== -->
+    <!-- ====                  JAVASCRIPT & FIREBASE                    ==== -->
+    <!-- =================================================================== -->
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        // Import Firebase services
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+
+        // =================================================
+        // === PASTE YOUR FIREBASE CONFIGURATION OBJECT HERE ===
+        // =================================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyA_3aYFoM4x7N0a_MzjNX54AG5ZGDzrKCM",
+            authDomain: "avaliacao-e-elogiometro.firebaseapp.com",
+            projectId: "avaliacao-e-elogiometro",
+            storageBucket: "avaliacao-e-elogiometro.appspot.com",
+            messagingSenderId: "705160472943",
+            appId: "1:705160472943:web:06ee4c0e5cdc9329f9609a",
+            measurementId: "G-TTL29X28QZ"
+        };
+        
+        // --- DOM ELEMENTS ---
+        const publicView = document.getElementById('public-view');
+        const adminDashboard = document.getElementById('admin-dashboard');
+
+        // Modals
+        const evaluationModal = document.getElementById('evaluation-modal');
+        const praiseModal = document.getElementById('praise-modal');
+        const thankYouModal = document.getElementById('thank-you-modal');
+        const adminLoginModal = document.getElementById('admin-login-modal');
+
+        // Forms
+        const evaluationForm = document.getElementById('evaluation-form');
+        const praiseForm = document.getElementById('praise-form');
+        const adminLoginForm = document.getElementById('admin-login-form');
+        
+        // Buttons
+        const openEvaluationBtn = document.getElementById('open-evaluation-btn');
+        const openPraiseBtn = document.getElementById('open-praise-btn');
+        const openAdminLoginBtn = document.getElementById('open-admin-login-btn');
+        const logoutBtn = document.getElementById('logout-btn');
+        const closeModalBtns = document.querySelectorAll('.close-modal-btn');
+        const submitEvaluationBtn = document.getElementById('submit-evaluation-btn');
+        const submitEvaluationSpinner = document.getElementById('submit-evaluation-spinner');
+
+        // --- GLOBAL ERROR HANDLING ---
+        const errorBanner = document.getElementById('error-banner');
+        const errorBannerMessage = document.getElementById('error-banner-message');
+
+        function showError(message) {
+            errorBannerMessage.textContent = message;
+            errorBanner.classList.remove('hidden');
+        }
+
+        // --- Check for placeholder Firebase config on script load ---
+        const isConfigured = firebaseConfig.apiKey && firebaseConfig.apiKey !== "YOUR_API_KEY";
+
+        if (!isConfigured) {
+            showError("CONFIGURAÇÃO NECESSÁRIA: Insira suas credenciais do Firebase no código para a aplicação funcionar.");
+            // Disable main buttons if not configured
+            openEvaluationBtn.disabled = true;
+            openPraiseBtn.disabled = true;
+            openEvaluationBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            openPraiseBtn.classList.add('opacity-50', 'cursor-not-allowed');
+        } else {
+            // Initialize Firebase only if configured
+            const app = initializeApp(firebaseConfig);
+            const db = getFirestore(app);
+            const auth = getAuth(app);
+            
+            // Sign in anonymously to get permissions
+            signInAnonymously(auth).catch((error) => {
+                console.error("Anonymous sign-in failed:", error);
+                showError("Falha na autenticação. Verifique se sua API Key do Firebase está correta e se o domínio está autorizado.");
+            });
+            
+            // Attach form submission listeners only if configured
+            attachFormListeners(db);
+            attachDashboardListeners(db);
+        }
+
+        // Toast
+        const toast = document.getElementById('toast-notification');
+
+        // --- STATIC DATA FOR FORMS ---
+        const PROFILE_OPTIONS = ["Parceiro", "Palestrante", "Visitante", "Fornecedor", "Outro"];
+        const INFRA_QUESTIONS = [
+            { id: 'instalacoes', text: 'Condições das instalações' },
+            { id: 'sinalizacao', text: 'Sinalização e localização' },
+            { id: 'limpeza', text: 'Limpeza e organização' },
+            { id: 'cordialidade', text: 'Cordialidade da equipe' },
+            { id: 'rapidez', text: 'Rapidez no atendimento' },
+            { id: 'clareza', text: 'Clareza das informações' },
+            { id: 'pontualidade', text: 'Pontualidade' },
+        ];
+        const RADIO_OPTIONS = ["Excelente", "Bom", "Regular", "Ruim"];
+
+        // --- DYNAMIC FORM INITIALIZATION ---
+        function initializeForms() {
+            // Populate Profile Checkboxes
+            const profileContainer = document.getElementById('profile-options');
+            profileContainer.innerHTML = PROFILE_OPTIONS.map(opt => `
+                <label class="flex items-center space-x-2 p-2 rounded-md border border-slate-200 hover:bg-slate-50 cursor-pointer">
+                    <input type="checkbox" name="profile" value="${opt}" class="h-4 w-4 rounded text-indigo-600 focus:ring-indigo-500 border-slate-300">
+                    <span class="text-slate-700">${opt}</span>
+                </label>
+            `).join('');
+
+            // Populate Infrastructure Radio Questions
+            const infraContainer = document.getElementById('infra-questions');
+            infraContainer.innerHTML = INFRA_QUESTIONS.map(q => `
+                <div class="border border-slate-200 rounded-md p-3">
+                    <p class="font-medium text-slate-600 mb-2">${q.text}</p>
+                    <div class="flex flex-wrap gap-x-6 gap-y-2" data-question-id="${q.id}">
+                        ${RADIO_OPTIONS.map(opt => `
+                            <label class="flex items-center space-x-2 cursor-pointer">
+                                <input type="radio" name="${q.id}" value="${opt}" required class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-slate-300">
+                                <span class="text-slate-700">${opt}</span>
+                            </label>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+
+            // Populate NPS Select Options
+            const npsSelect = document.getElementById('nps');
+            let npsOptions = '<option value="">Selecione uma nota</option>';
+            for (let i = 0; i <= 10; i++) {
+                npsOptions += `<option value="${i}">${i}</option>`;
+            }
+            npsSelect.innerHTML = npsOptions;
+        }
+        
+        // --- MODAL CONTROLS ---
+        const openModal = (modal) => modal.classList.remove('hidden');
+        const closeModal = (modal) => modal.classList.add('hidden');
+
+        openEvaluationBtn.addEventListener('click', () => openModal(evaluationModal));
+        openPraiseBtn.addEventListener('click', () => openModal(praiseModal));
+        openAdminLoginBtn.addEventListener('click', () => openModal(adminLoginModal));
+        closeModalBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => closeModal(e.target.closest('.fixed')));
+        });
+        
+        // --- NOTIFICATION TOAST ---
+        const showToast = () => {
+            toast.classList.remove('hidden', 'toast-out');
+            toast.classList.add('toast-in');
+            setTimeout(() => {
+                toast.classList.remove('toast-in');
+                toast.classList.add('toast-out');
+                setTimeout(() => toast.classList.add('hidden'), 500);
+            }, 3000);
+        };
+
+        // --- FORM SUBMISSION LOGIC ---
+        function attachFormListeners(db) {
+            // Evaluation Form
+            evaluationForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                if (!validateEvaluationForm()) return;
+
+                submitEvaluationBtn.disabled = true;
+                submitEvaluationSpinner.classList.remove('hidden');
+
+                const formData = {
+                    profile: Array.from(document.querySelectorAll('input[name="profile"]:checked')).map(el => el.value),
+                    infrastructure: {},
+                    likes: document.getElementById('likes').value.trim(),
+                    nps: parseInt(document.getElementById('nps').value),
+                    suggestions: document.getElementById('suggestions').value.trim(),
+                    createdAt: serverTimestamp()
+                };
+
+                INFRA_QUESTIONS.forEach(q => {
+                    const selected = document.querySelector(`input[name="${q.id}"]:checked`);
+                    if (selected) formData.infrastructure[q.id] = selected.value;
+                });
+
+                try {
+                    await addDoc(collection(db, "avaliacap"), formData);
+                    evaluationForm.reset();
+                    closeModal(evaluationModal);
+                    openModal(thankYouModal);
+                } catch (error) {
+                    console.error("Error adding document: ", error);
+                    showError("Ocorreu um erro ao enviar sua avaliação. Tente novamente.");
+                } finally {
+                    submitEvaluationBtn.disabled = false;
+                    submitEvaluationSpinner.classList.add('hidden');
+                }
+            });
+
+            // Praise Form
+            praiseForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const formData = {
+                    recipient: document.getElementById('praise-recipient').value.trim(),
+                    department: document.getElementById('praise-department').value.trim(),
+                    reason: document.getElementById('praise-reason').value.trim(),
+                    author: document.getElementById('praise-author').value.trim() || "Anônimo",
+                    createdAt: serverTimestamp()
+                };
+
+                try {
+                    await addDoc(collection(db, "elogios"), formData);
+                    praiseForm.reset();
+                    closeModal(praiseModal);
+                    showToast();
+                } catch (error) {
+                    console.error("Error adding document: ", error);
+                    showError("Ocorreu um erro ao enviar seu elogio. Tente novamente.");
+                }
+            });
+        }
+
+        // Admin Login Form
+        adminLoginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            if (!isConfigured) {
+                showError("A área de admin não pode funcionar sem a configuração do Firebase.");
+                return;
+            }
+            const password = document.getElementById('admin-password').value;
+            const errorMsg = document.getElementById('admin-error');
+            if (password === 'Evereste#Admin@2024!') {
+                publicView.classList.add('hidden');
+                adminDashboard.classList.remove('hidden');
+                closeModal(adminLoginModal);
+                adminLoginForm.reset();
+                errorMsg.classList.add('hidden');
+                initializeDashboard();
+            } else {
+                errorMsg.classList.remove('hidden');
+            }
+        });
+        
+        logoutBtn.addEventListener('click', () => {
+            publicView.classList.remove('hidden');
+            adminDashboard.classList.add('hidden');
+            // Destroy all chart instances to prevent memory leaks and rendering issues
+            ['infraChartInstance', 'npsChartInstance', 'profilePieChartInstance', 'timeSeriesChartInstance'].forEach(instanceName => {
+                if(window[instanceName]) {
+                    window[instanceName].destroy();
+                    window[instanceName] = null;
+                }
+            });
+        });
+
+        // --- FORM VALIDATION ---
+        function validateEvaluationForm() {
+            let isValid = true;
+            // Profile validation
+            const profileChecked = document.querySelectorAll('input[name="profile"]:checked').length > 0;
+            const profileError = document.getElementById('profile-error');
+            profileError.classList.toggle('hidden', profileChecked);
+            if (!profileChecked) isValid = false;
+
+            // Infrastructure validation
+            let allInfraAnswered = true;
+            INFRA_QUESTIONS.forEach(q => {
+                if (!document.querySelector(`input[name="${q.id}"]:checked`)) {
+                    allInfraAnswered = false;
+                }
+            });
+            const infraError = document.getElementById('infra-error');
+            infraError.classList.toggle('hidden', allInfraAnswered);
+            if (!allInfraAnswered) isValid = false;
+
+            // NPS validation
+            const npsValue = document.getElementById('nps').value;
+            const npsError = document.getElementById('nps-error');
+            npsError.classList.toggle('hidden', npsValue !== "");
+            if (npsValue === "") isValid = false;
+
+            return isValid;
+        }
+        
+        // --- DASHBOARD LOGIC ---
+        let allEvaluations = [];
+        let allPraises = [];
+        let listenersAttached = false;
+        
+        function attachDashboardListeners(db) {
+            function initializeDashboard() {
+                if (listenersAttached) {
+                    updateDashboard(); // Just update with existing data if already initialized
+                    return;
+                }
+
+                // Listen for real-time updates on evaluations
+                onSnapshot(collection(db, "avaliacap"), (snapshot) => {
+                    allEvaluations = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    updateDashboard();
+                }, (error) => {
+                    console.error("Error fetching evaluations:", error);
+                    showError("Não foi possível carregar os dados de avaliações.");
+                });
+
+                // Listen for real-time updates on praises
+                onSnapshot(collection(db, "elogios"), (snapshot) => {
+                    allPraises = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    updateDashboard();
+                }, (error) => {
+                    console.error("Error fetching praises:", error);
+                    showError("Não foi possível carregar os dados de elogios.");
+                });
+
+                document.getElementById('profile-filter').addEventListener('change', updateDashboard);
+                listenersAttached = true;
+            }
+            // Make initializeDashboard available globally for the login form to call it
+            window.initializeDashboard = initializeDashboard;
+        }
+        
+        function updateDashboard() {
+            if (adminDashboard.classList.contains('hidden')) return;
+            
+            const filterValue = document.getElementById('profile-filter').value;
+            const filteredEvaluations = filterValue === 'all'
+                ? allEvaluations
+                : allEvaluations.filter(e => e.profile && e.profile.includes(filterValue));
+
+            // Update UI components
+            updateCounters(filteredEvaluations.length, allPraises.length);
+            populateProfileFilter(allEvaluations);
+            renderInfraChart(filteredEvaluations);
+            renderNpsChart(filteredEvaluations);
+            renderComments(filteredEvaluations);
+            renderPraises(allPraises);
+            renderProfilePieChart(filteredEvaluations);
+            renderTimeSeriesChart(filteredEvaluations);
+        }
+
+        function updateCounters(evalCount, praiseCount) {
+            document.getElementById('total-evaluations').textContent = evalCount;
+            document.getElementById('total-praises').textContent = praiseCount;
+        }
+        
+        function populateProfileFilter(evaluations) {
+            const filterSelect = document.getElementById('profile-filter');
+            const currentFilterValue = filterSelect.value;
+            const existingOptions = new Set(Array.from(filterSelect.options).map(o => o.value));
+            const allProfiles = new Set(evaluations.flatMap(e => e.profile || []));
+            
+            allProfiles.forEach(profile => {
+                if (!existingOptions.has(profile)) {
+                    const option = document.createElement('option');
+                    option.value = profile;
+                    option.textContent = profile;
+                    filterSelect.appendChild(option);
+                }
+            });
+            filterSelect.value = currentFilterValue;
+        }
+        
+        function renderInfraChart(evaluations) {
+            const ctx = document.getElementById('infra-chart').getContext('2d');
+            const data = {
+                labels: INFRA_QUESTIONS.map(q => q.text),
+                datasets: RADIO_OPTIONS.map((option, index) => {
+                    const colors = ['#4ade80', '#fbbf24', '#f87171', '#ef4444'];
+                    return {
+                        label: option,
+                        data: INFRA_QUESTIONS.map(q => {
+                            return evaluations.filter(e => e.infrastructure && e.infrastructure[q.id] === option).length;
+                        }),
+                        backgroundColor: colors[index],
+                    }
+                })
+            };
+
+            if (window.infraChartInstance) window.infraChartInstance.destroy();
+            window.infraChartInstance = new Chart(ctx, {
+                type: 'bar', data: data,
+                options: {
+                    indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+                    scales: { x: { stacked: true, beginAtZero: true }, y: { stacked: true } },
+                    plugins: { legend: { position: 'bottom' }, tooltip: { mode: 'index', intersect: false } }
+                }
+            });
+        }
+        
+        function renderNpsChart(evaluations) {
+            const ctx = document.getElementById('nps-chart').getContext('2d');
+            const npsData = {
+                detractors: evaluations.filter(e => e.nps <= 6).length,
+                neutrals: evaluations.filter(e => e.nps >= 7 && e.nps <= 8).length,
+                promoters: evaluations.filter(e => e.nps >= 9).length,
+            };
+
+            const data = {
+                labels: ['Detratores (0-6)', 'Neutros (7-8)', 'Promotores (9-10)'],
+                datasets: [{
+                    data: [npsData.detractors, npsData.neutrals, npsData.promoters],
+                    backgroundColor: ['#f87171', '#fbbf24', '#4ade80'],
+                }]
+            };
+
+            if (window.npsChartInstance) window.npsChartInstance.destroy();
+            window.npsChartInstance = new Chart(ctx, {
+                type: 'bar', data: data,
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        function renderProfilePieChart(evaluations) {
+            const ctx = document.getElementById('profile-pie-chart').getContext('2d');
+            const profileCounts = evaluations.flatMap(e => e.profile || []).reduce((acc, profile) => {
+                acc[profile] = (acc[profile] || 0) + 1;
+                return acc;
+            }, {});
+
+            const data = {
+                labels: Object.keys(profileCounts),
+                datasets: [{
+                    data: Object.values(profileCounts),
+                    backgroundColor: ['#8b5cf6', '#6366f1', '#3b82f6', '#14b8a6', '#ec4899', '#f97316'],
+                    hoverOffset: 4
+                }]
+            };
+
+            if(window.profilePieChartInstance) window.profilePieChartInstance.destroy();
+            window.profilePieChartInstance = new Chart(ctx, {
+                type: 'pie', data: data,
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom' } }
+                }
+            });
+        }
+
+        function renderTimeSeriesChart(evaluations) {
+            const ctx = document.getElementById('time-series-chart').getContext('2d');
+            const evaluationsByDate = evaluations
+                .filter(e => e.createdAt && e.createdAt.toDate)
+                .reduce((acc, e) => {
+                    const date = e.createdAt.toDate().toISOString().split('T')[0]; // YYYY-MM-DD
+                    acc[date] = (acc[date] || 0) + 1;
+                    return acc;
+                }, {});
+            
+            const sortedDates = Object.keys(evaluationsByDate).sort();
+            const dataPoints = sortedDates.map(date => ({ x: date, y: evaluationsByDate[date] }));
+
+            const data = {
+                datasets: [{
+                    label: 'Avaliações por Dia',
+                    data: dataPoints,
+                    borderColor: '#4f46e5',
+                    backgroundColor: '#4f46e520',
+                    fill: true,
+                    tension: 0.1
+                }]
+            };
+
+            if(window.timeSeriesChartInstance) window.timeSeriesChartInstance.destroy();
+            window.timeSeriesChartInstance = new Chart(ctx, {
+                type: 'line', data: data,
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            type: 'time',
+                            time: { unit: 'day', tooltipFormat: 'dd/MM/yyyy' },
+                            title: { display: true, text: 'Data' }
+                        },
+                        y: { beginAtZero: true, title: { display: true, text: 'Nº de Avaliações' } }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+        
+        function renderComments(evaluations) {
+            const likesList = document.getElementById('likes-list');
+            const suggestionsList = document.getElementById('suggestions-list');
+            
+            const likesHtml = evaluations.map(e => e.likes).filter(Boolean).map(comment => 
+                `<div class="p-3 bg-slate-50 rounded-md border border-slate-200 text-slate-700">${comment}</div>`
+            ).join('');
+            
+            const suggestionsHtml = evaluations.map(e => e.suggestions).filter(Boolean).map(comment => 
+                `<div class="p-3 bg-slate-50 rounded-md border border-slate-200 text-slate-700">${comment}</div>`
+            ).join('');
+
+            likesList.innerHTML = likesHtml || `<p class="text-slate-500">Nenhum comentário nesta categoria.</p>`;
+            suggestionsList.innerHTML = suggestionsHtml || `<p class="text-slate-500">Nenhuma sugestão nesta categoria.</p>`;
+        }
+        
+        function renderPraises(praises) {
+            const praisesList = document.getElementById('praises-list');
+            if (praises.length === 0) {
+                praisesList.innerHTML = `<p class="text-slate-500 col-span-full">Nenhum elogio recebido ainda.</p>`;
+                return;
+            }
+            
+            praisesList.innerHTML = praises.sort((a,b) => b.createdAt?.toMillis() - a.createdAt?.toMillis()).map(p => `
+                <div class="bg-white rounded-lg shadow p-4 flex flex-col">
+                    <div class="mb-2">
+                        <p class="text-sm text-slate-500">Para: <span class="font-bold text-slate-700">${p.recipient}</span></p>
+                        <p class="text-sm text-slate-500">Setor: <span class="font-semibold text-slate-600">${p.department}</span></p>
+                    </div>
+                    <p class="text-slate-800 bg-amber-50 border border-amber-100 rounded-md p-3 flex-grow">"${p.reason}"</p>
+                    <p class="text-right text-sm text-slate-500 mt-2">Por: <span class="font-medium">${p.author}</span></p>
+                </div>
+            `).join('');
+        }
+
+        // --- INITIALIZATION CALL ---
+        initializeForms();
+
+    </script>
+</body>
+</html>
