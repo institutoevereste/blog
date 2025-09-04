@@ -11,6 +11,7 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
+            background-color: #030712; /* Fundo ainda mais escuro */
         }
         /* Estilo para a barra de rolagem */
         ::-webkit-scrollbar {
@@ -27,16 +28,22 @@
             background: #1d4ed8;
         }
         .content-prose {
-            prose-invert: true;
+            color: #d1d5db;
         }
-        .content-prose h1 { font-size: 1.875rem; font-weight: 900; margin-bottom: 1rem; }
-        .content-prose h2 { font-size: 1.5rem; font-weight: 700; margin-bottom: 0.75rem; }
-        .content-prose p { margin-bottom: 1rem; line-height: 1.75; }
-        .content-prose a { color: #2563eb; text-decoration: underline; }
-        .content-prose ul { list-style-position: inside; margin-bottom: 1rem; }
-        .content-prose blockquote { border-left: 4px solid #374151; padding-left: 1rem; font-style: italic; color: #9ca3af; }
+        .content-prose h1 { font-size: 2.25rem; line-height: 2.5rem; font-weight: 900; margin-bottom: 1.5rem; color: #fff; }
+        .content-prose h2 { font-size: 1.875rem; line-height: 2.25rem; font-weight: 700; margin-bottom: 1rem; color: #fff; margin-top: 2rem;}
+        .content-prose h3 { font-size: 1.5rem; line-height: 2rem; font-weight: 700; margin-bottom: 0.75rem; color: #fff; margin-top: 1.5rem;}
+        .content-prose p { 
+            margin-bottom: 1rem; 
+            line-height: 1.75; 
+            font-size: 1.125rem;
+            text-align: justify;
+        }
+        .content-prose a { color: #38bdf8; text-decoration: underline; }
+        .content-prose ul, .content-prose ol { list-style-position: inside; margin-left: 1rem; margin-bottom: 1rem; font-size: 1.125rem;}
+        .content-prose li { margin-bottom: 0.5rem; }
+        .content-prose blockquote { border-left: 4px solid #4b5563; padding-left: 1rem; font-style: italic; color: #9ca3af; }
         
-        /* Estilos para Notificação/Toast */
         #notification-toast {
             transition: opacity 0.5s, transform 0.5s;
         }
@@ -44,9 +51,28 @@
         #search-input {
             transition: width 0.3s ease-in-out;
         }
+        .format-btn {
+            padding: 0.5rem;
+            border-radius: 0.25rem;
+            transition: background-color 0.2s;
+            font-weight: bold;
+            color: #d1d5db;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .format-btn:hover {
+            background-color: #4b5563;
+        }
+        .format-btn svg {
+            width: 20px;
+            height: 20px;
+        }
     </style>
 </head>
-<body class="bg-gray-900 text-gray-200">
+<body class="bg-gray-950 text-gray-200">
 
     <div id="app" class="min-h-screen">
 
@@ -54,7 +80,7 @@
         <header class="bg-blue-900/80 backdrop-blur-sm sticky top-0 z-50 shadow-lg">
             <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
                 <div class="flex items-center space-x-4">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                     <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
                     </svg>
                     <h1 class="text-2xl font-black text-white tracking-wider">EVERESTE TECHNEWS</h1>
@@ -76,7 +102,7 @@
         </header>
 
         <!-- Hero Banner -->
-        <div class="w-full mb-8">
+        <div id="hero-banner" class="w-full mb-8">
             <img src="https://i.postimg.cc/HxMK4LR8/CAPA-BLOG-EVERESTE-1.png" alt="Banner Evereste TechNews com o logo e o texto 'O Futuro é Agora'" class="w-full h-auto object-cover">
         </div>
 
@@ -86,35 +112,70 @@
             <!-- Blog View -->
             <div id="blog-view">
                 <div id="posts-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    <!-- Posts serão injetados aqui pelo JavaScript -->
+                    <!-- Posts serão injetados aqui -->
                 </div>
             </div>
+            
+            <!-- Single Post View -->
+            <div id="single-post-view" class="hidden">
+                 <!-- Conteúdo do post será injetado aqui -->
+            </div>
+
 
             <!-- Admin View -->
             <div id="admin-view" class="hidden">
+                 <h2 class="text-3xl font-bold text-white mb-6 border-b-2 border-teal-500 pb-2 flex items-center">
+                    Painel Administrativo
+                    <span id="db-status" class="ml-4 h-4 w-4 rounded-full bg-yellow-500 animate-pulse" title="Conectando..."></span>
+                </h2>
+                
+                <!-- Dashboard -->
+                <div id="dashboard" class="mb-12">
+                    <h3 class="text-2xl font-bold text-white mb-4">Dashboard de Performance</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- KPI Cards serão injetados aqui -->
+                    </div>
+                </div>
+
                 <div class="bg-gray-800 p-8 rounded-xl shadow-2xl max-w-4xl mx-auto">
-                    <h2 class="text-3xl font-bold text-white mb-6 border-b-2 border-teal-500 pb-2 flex items-center">
-                        Painel Administrativo
-                        <span id="db-status" class="ml-4 h-4 w-4 rounded-full bg-yellow-500 animate-pulse" title="Conectando..."></span>
-                    </h2>
-                    
+                    <h3 class="text-2xl font-bold text-white mb-6">Editor de Matérias</h3>
                     <form id="post-form" class="space-y-6">
                         <input type="hidden" id="post-id">
                         <div>
                             <label for="title" class="block text-sm font-medium text-gray-300 mb-1">Título da Matéria</label>
-                            <input type="text" id="title" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-teal-500" required>
+                            <input type="text" id="title" placeholder="Ex: As novas tendências de IA para 2025" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-teal-500" required>
                         </div>
                         <div>
                             <label for="subtitle" class="block text-sm font-medium text-gray-300 mb-1">Subtítulo (Descrição Curta)</label>
-                            <input type="text" id="subtitle" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-teal-500" required>
+                            <input type="text" id="subtitle" placeholder="Um resumo atrativo que aparecerá na listagem do blog" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-teal-500" required>
                         </div>
                         <div>
                             <label for="imageUrl" class="block text-sm font-medium text-gray-300 mb-1">URL da Imagem de Capa</label>
-                            <input type="url" id="imageUrl" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-teal-500" required>
+                            <input type="url" id="imageUrl" placeholder="Copie e cole o link de uma imagem online" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-teal-500" required>
                         </div>
                         <div>
-                            <label for="content" class="block text-sm font-medium text-gray-300 mb-1">Conteúdo Completo (Markdown suportado)</label>
-                            <textarea id="content" rows="10" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-teal-500" required></textarea>
+                            <label for="content" class="block text-sm font-medium text-gray-300 mb-1">Conteúdo Completo</label>
+                             <!-- Barra de Formatação -->
+                            <div id="format-toolbar" class="flex items-center space-x-1 bg-gray-700 p-2 rounded-t-lg border-b border-gray-600 flex-wrap">
+                                <button type="button" class="format-btn" data-format="bold" title="Negrito"><b>B</b></button>
+                                <button type="button" class="format-btn" data-format="italic" title="Itálico"><i>I</i></button>
+                                <button type="button" class="format-btn" data-format="strikethrough" title="Tachado"><del>S</del></button>
+                                <div class="w-px h-5 bg-gray-600 mx-2"></div>
+                                <button type="button" class="format-btn" data-format="h2" title="Título">H2</button>
+                                <button type="button" class="format-btn" data-format="h3" title="Subtítulo">H3</button>
+                                <div class="w-px h-5 bg-gray-600 mx-2"></div>
+                                <button type="button" class="format-btn" data-format="link" title="Link"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M12.586 4.586a2 2 0 112.828 2.828l-3 3a2 2 0 01-2.828 0 1 1 0 00-1.414 1.414 4 4 0 005.656 0l3-3a4 4 0 00-5.656-5.656l-1.5 1.5a1 1 0 101.414 1.414l1.5-1.5zm-5 5a2 2 0 012.828 0 1 1 0 101.414-1.414 4 4 0 00-5.656 0l-3 3a4 4 0 105.656 5.656l1.5-1.5a1 1 0 10-1.414-1.414l-1.5 1.5a2 2 0 11-2.828-2.828l3-3z" clip-rule="evenodd" /></svg></button>
+                                <button type="button" class="format-btn" data-format="blockquote" title="Citação"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M6 3a1 1 0 00-1 1v1.586l-2.293-2.293a1 1 0 00-1.414 1.414L3.586 6H2a1 1 0 00-1 1v6a1 1 0 001 1h1.586l-2.293 2.293a1 1 0 101.414 1.414L6 14.414V16a1 1 0 001 1h6a1 1 0 001-1v-1.586l2.293 2.293a1 1 0 101.414-1.414L14.414 14H16a1 1 0 001-1V7a1 1 0 00-1-1h-1.586l2.293-2.293a1 1 0 10-1.414-1.414L14 4.586V4a1 1 0 00-1-1H7a1 1 0 00-1 1z" /></svg></button>
+                                <button type="button" class="format-btn" data-format="ul" title="Lista"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10zm0 5.25a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75a.75.75 0 01-.75-.75z" clip-rule="evenodd" /></svg></button>
+                                <button type="button" class="format-btn" data-format="ol" title="Lista Numerada">1.</button>
+                                <button type="button" class="format-btn" data-format="hr" title="Linha Horizontal"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 9h16.5m-16.5 6.75h16.5" /></svg></button>
+                                <div class="w-px h-5 bg-gray-600 mx-2"></div>
+                                <button type="button" class="format-btn" data-format="align-left" title="Alinhar à Esquerda"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10zm0 5.25A.75.75 0 012.75 15h9.5a.75.75 0 010 1.5H2.75a.75.75 0 01-.75-.75z" clip-rule="evenodd" /></svg></button>
+                                <button type="button" class="format-btn" data-format="align-center" title="Centralizar"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10zm3.25 5.25a.75.75 0 01.75-.75h9.5a.75.75 0 010 1.5h-9.5a.75.75 0 01-.75-.75z" clip-rule="evenodd" /></svg></button>
+                                <button type="button" class="format-btn" data-format="align-right" title="Alinhar à Direita"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10zm6.25 5.25a.75.75 0 01.75-.75h9.5a.75.75 0 010 1.5h-9.5a.75.75 0 01-.75-.75z" clip-rule="evenodd" /></svg></button>
+                                <button type="button" class="format-btn" data-format="align-justify" title="Justificar"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10zm0 5.25a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75a.75.75 0 01-.75-.75z" clip-rule="evenodd" /></svg></button>
+                            </div>
+                            <textarea id="content" rows="15" placeholder="Escreva sua matéria aqui. Use a barra acima para formatar." class="w-full bg-gray-700 border border-gray-600 rounded-b-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-teal-500" required></textarea>
                         </div>
                         <div class="flex justify-end space-x-4">
                             <button type="button" id="cancel-edit-button" class="hidden bg-gray-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-gray-700 transition duration-300">Cancelar</button>
@@ -130,17 +191,10 @@
                     </div>
                 </div>
             </div>
-
-             <!-- Modal de visualização do post -->
-            <div id="post-modal" class="fixed inset-0 bg-black bg-opacity-75 backdrop-blur-sm flex items-center justify-center hidden z-50 p-4">
-                <div id="modal-content" class="bg-gray-800 text-gray-200 rounded-xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto relative">
-                    <!-- Conteúdo do post será injetado aqui -->
-                </div>
-            </div>
         </main>
         
         <!-- Notificação Toast -->
-        <div id="notification-toast" class="fixed bottom-5 right-5 bg-teal-500 text-white py-3 px-6 rounded-lg shadow-lg opacity-0 transform translate-y-10">
+        <div id="notification-toast" class="fixed bottom-5 right-5 bg-teal-500 text-white py-3 px-6 rounded-lg shadow-lg opacity-0 transform translate-y-10 z-50">
             Mensagem da notificação
         </div>
 
@@ -156,24 +210,46 @@
             </div>
         </div>
 
-        <!-- Login Modal -->
-        <div id="login-modal" class="fixed inset-0 bg-black bg-opacity-75 backdrop-blur-sm flex items-center justify-center hidden z-50 p-4">
+        <!-- Auth Modal -->
+        <div id="auth-modal" class="fixed inset-0 bg-black bg-opacity-75 backdrop-blur-sm flex items-center justify-center hidden z-50 p-4">
             <div class="bg-gray-800 rounded-lg shadow-2xl p-8 max-w-sm w-full">
-                <h3 class="text-xl font-bold text-white mb-6 text-center">Acesso Administrativo</h3>
-                <form id="login-form" class="space-y-4">
-                    <div>
-                        <label for="username" class="block text-sm font-medium text-gray-300 mb-1">Usuário</label>
-                        <input type="text" id="username" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-teal-500" required>
-                    </div>
-                    <div>
-                        <label for="password" class="block text-sm font-medium text-gray-300 mb-1">Senha</label>
-                        <input type="password" id="password" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-teal-500" required>
-                    </div>
-                    <p id="login-error" class="text-red-500 text-sm hidden">Usuário ou senha inválidos.</p>
-                    <div class="pt-2">
-                         <button type="submit" class="w-full bg-teal-500 text-white font-bold py-2 px-6 rounded-lg hover:bg-teal-600 transition duration-300">Entrar</button>
-                    </div>
-                </form>
+                <!-- Login View -->
+                <div id="login-view">
+                    <h3 class="text-xl font-bold text-white mb-6 text-center">Acesso Administrativo</h3>
+                    <form id="login-form" class="space-y-4">
+                        <div>
+                            <label for="email" class="block text-sm font-medium text-gray-300 mb-1">Email</label>
+                            <input type="email" id="email" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-teal-500" required>
+                        </div>
+                        <div>
+                            <label for="password" class="block text-sm font-medium text-gray-300 mb-1">Senha</label>
+                            <input type="password" id="password" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-teal-500" required>
+                        </div>
+                        <p id="auth-error" class="text-red-500 text-sm hidden">Email ou senha inválidos.</p>
+                        <div class="pt-2">
+                            <button type="submit" class="w-full bg-teal-500 text-white font-bold py-2 px-6 rounded-lg hover:bg-teal-600 transition duration-300">Entrar</button>
+                        </div>
+                    </form>
+                </div>
+                 <!-- Setup View (First time admin creation) -->
+                <div id="setup-view" class="hidden">
+                    <h3 class="text-xl font-bold text-white mb-4 text-center">Criar Conta de Administrador</h3>
+                    <p class="text-sm text-gray-400 mb-6 text-center">Como este é o primeiro acesso, por favor crie sua conta de administrador. Esta ação só pode ser feita uma vez.</p>
+                    <form id="setup-form" class="space-y-4">
+                        <div>
+                            <label for="setup-email" class="block text-sm font-medium text-gray-300 mb-1">Email</label>
+                            <input type="email" id="setup-email" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" required>
+                        </div>
+                        <div>
+                            <label for="setup-password" class="block text-sm font-medium text-gray-300 mb-1">Senha (mínimo 6 caracteres)</label>
+                            <input type="password" id="setup-password" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" required>
+                        </div>
+                        <p id="setup-error" class="text-red-500 text-sm hidden"></p>
+                        <div class="pt-2">
+                             <button type="submit" class="w-full bg-teal-500 text-white font-bold py-2 px-6 rounded-lg hover:bg-teal-600">Criar e Acessar</button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
@@ -181,8 +257,8 @@
     <script type="module">
         // Importações do Firebase
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getFirestore, collection, onSnapshot, addDoc, doc, getDoc, updateDoc, deleteDoc, serverTimestamp, increment } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, onSnapshot, addDoc, doc, getDoc, setDoc, updateDoc, deleteDoc, serverTimestamp, increment } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
         // =================================================================================
         // SUAS CHAVES DO FIREBASE.
@@ -206,6 +282,7 @@
         const postsContainer = document.getElementById('posts-container');
         const adminView = document.getElementById('admin-view');
         const blogView = document.getElementById('blog-view');
+        const singlePostView = document.getElementById('single-post-view');
         const adminToggleButton = document.getElementById('admin-toggle-button');
         const postForm = document.getElementById('post-form');
         const adminPostsList = document.getElementById('admin-posts-list');
@@ -216,8 +293,6 @@
         const contentInput = document.getElementById('content');
         const submitButton = document.getElementById('submit-button');
         const cancelEditButton = document.getElementById('cancel-edit-button');
-        const postModal = document.getElementById('post-modal');
-        const modalContent = document.getElementById('modal-content');
         const notificationToast = document.getElementById('notification-toast');
         const confirmModal = document.getElementById('confirm-modal');
         const confirmModalCancelBtn = document.getElementById('confirm-modal-cancel-btn');
@@ -225,190 +300,267 @@
         const dbStatusIndicator = document.getElementById('db-status');
         const searchButton = document.getElementById('search-button');
         const searchInput = document.getElementById('search-input');
-        const loginModal = document.getElementById('login-modal');
+        const authModal = document.getElementById('auth-modal');
+        const loginView = document.getElementById('login-view');
+        const setupView = document.getElementById('setup-view');
         const loginForm = document.getElementById('login-form');
-        const usernameInput = document.getElementById('username');
-        const passwordInput = document.getElementById('password');
-        const loginError = document.getElementById('login-error');
-
-        // --- DADOS DE LOGIN (SIMPLIFICADO) ---
-        // ATENÇÃO: Para um site real, use um sistema de autenticação seguro (como o Firebase Auth com Email/Senha).
-        // MUDE ESTES DADOS!
-        const ADMIN_USERNAME = 'admin';
-        const ADMIN_PASSWORD = 'admin123';
+        const setupForm = document.getElementById('setup-form');
+        const authError = document.getElementById('auth-error');
+        const setupError = document.getElementById('setup-error');
+        const heroBanner = document.getElementById('hero-banner');
+        const dashboardContainer = document.querySelector('#dashboard .grid');
 
         let currentView = 'blog';
         let postsCollection;
-        let allPosts = []; // Armazena a lista completa de posts
+        let allPosts = [];
         let isInitialLoad = true;
-        let isAdminLoggedIn = false;
+        let adminExists = false;
         
         // --- Funções de Status e Notificação ---
         function updateDbStatus(status) {
             if (!dbStatusIndicator) return;
             dbStatusIndicator.classList.remove('bg-yellow-500', 'bg-green-500', 'bg-red-500', 'animate-pulse');
             switch (status) {
-                case 'connected':
-                    dbStatusIndicator.classList.add('bg-green-500');
-                    dbStatusIndicator.title = 'Conectado ao Firebase';
-                    break;
-                case 'error':
-                    dbStatusIndicator.classList.add('bg-red-500');
-                    dbStatusIndicator.title = 'Erro na conexão com Firebase. Verifique o console (F12).';
-                    break;
-                default: // connecting
-                    dbStatusIndicator.classList.add('bg-yellow-500', 'animate-pulse');
-                    dbStatusIndicator.title = 'Conectando...';
+                case 'connected': dbStatusIndicator.classList.add('bg-green-500'); dbStatusIndicator.title = 'Conectado'; break;
+                case 'error': dbStatusIndicator.classList.add('bg-red-500'); dbStatusIndicator.title = 'Erro na conexão'; break;
+                default: dbStatusIndicator.classList.add('bg-yellow-500', 'animate-pulse'); dbStatusIndicator.title = 'Conectando...';
             }
         }
 
         function showNotification(message, isError = false) {
             notificationToast.textContent = message;
-            notificationToast.classList.remove('bg-teal-500', 'bg-red-500', 'opacity-0', 'translate-y-10');
-            notificationToast.classList.add(isError ? 'bg-red-500' : 'bg-teal-500', 'opacity-100', 'transform-none');
-
+            notificationToast.className = `fixed bottom-5 right-5 text-white py-3 px-6 rounded-lg shadow-lg transition-all duration-300 opacity-100 transform-none ${isError ? 'bg-red-500' : 'bg-teal-500'}`;
             setTimeout(() => {
-                notificationToast.classList.remove('opacity-100', 'transform-none');
-                notificationToast.classList.add('opacity-0', 'translate-y-10');
+                notificationToast.className = notificationToast.className.replace('opacity-100 transform-none', 'opacity-0 translate-y-10');
             }, 5000);
         }
 
         // --- Autenticação e Inicialização ---
-        onAuthStateChanged(auth, user => {
-            if (user) {
-                console.log("Usuário autenticado com sucesso (anônimo):", user.uid);
-                updateDbStatus('connected');
-                postsCollection = collection(db, 'posts');
-                listenToPosts();
-            } else {
-                signInAnonymously(auth).catch(error => {
-                    console.error("FIREBASE AUTH ERROR:", error);
-                    showNotification("Falha grave na autenticação. Verifique as chaves e o console.", true);
-                    updateDbStatus('error');
-                });
+        async function checkAdminExists() {
+            const adminConfigRef = doc(db, 'config', 'admin');
+            try {
+                const docSnap = await getDoc(adminConfigRef);
+                adminExists = docSnap.exists();
+            } catch (error) {
+                console.warn("Could not check for admin config, assuming it doesn't exist.", error.message);
+                adminExists = false;
             }
-        });
-        checkLoginStatus();
-
-
-        // --- Funções de Login / Sessão ---
-        function checkLoginStatus() {
-            if (sessionStorage.getItem('isAdminLoggedIn') === 'true') {
-                isAdminLoggedIn = true;
-            }
-            updateAdminButtonIcon();
         }
 
-        function updateAdminButtonIcon() {
-            if (isAdminLoggedIn) {
-                adminToggleButton.innerHTML = `
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                    </svg>
-                `;
-                adminToggleButton.title = "Sair do Painel Administrativo";
+        onAuthStateChanged(auth, user => {
+            updateAdminButtonIcon(user);
+            if (user) {
+                if (currentView !== 'admin') {
+                    setView('admin');
+                }
             } else {
-                adminToggleButton.innerHTML = `
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
-                `;
+                 if (currentView === 'admin') {
+                    setView('blog');
+                 }
+            }
+        });
+
+        // --- Funções de Login / Sessão ---
+        function updateAdminButtonIcon(user) {
+             if (user) {
+                adminToggleButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>`;
+                adminToggleButton.title = "Sair";
+            } else {
+                adminToggleButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>`;
                 adminToggleButton.title = "Painel Administrativo";
             }
         }
-
-        function handleLogin(e) {
-            e.preventDefault();
-            const username = usernameInput.value;
-            const password = passwordInput.value;
-
-            if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
-                isAdminLoggedIn = true;
-                sessionStorage.setItem('isAdminLoggedIn', 'true');
-                loginModal.classList.add('hidden');
-                loginForm.reset();
-                loginError.classList.add('hidden');
-                currentView = 'admin';
-                updateView();
-                updateAdminButtonIcon();
-                renderAdminList(allPosts);
-            } else {
-                loginError.classList.remove('hidden');
-            }
-        }
-
-        function handleLogout() {
-            isAdminLoggedIn = false;
-            sessionStorage.removeItem('isAdminLoggedIn');
-            currentView = 'blog';
-            updateView();
-            updateAdminButtonIcon();
-            showNotification("Você saiu do modo de administração.");
-            if(adminPostsList) adminPostsList.innerHTML = '';
-        }
-
-        // Toggle para login/logout
-        adminToggleButton.addEventListener('click', () => {
-            if (isAdminLoggedIn) {
-                handleLogout();
-            } else {
-                loginModal.classList.remove('hidden');
-            }
-        });
         
-        loginForm.addEventListener('submit', handleLogin);
-        loginModal.addEventListener('click', (e) => {
-            if (e.target === loginModal) {
-                loginModal.classList.add('hidden');
-                loginForm.reset();
-                loginError.classList.add('hidden');
+        adminToggleButton.addEventListener('click', () => {
+            if (auth.currentUser) {
+                signOut(auth);
+                showNotification("Você saiu da sua conta.");
+            } else {
+                if (adminExists) {
+                    loginView.classList.remove('hidden');
+                    setupView.classList.add('hidden');
+                } else {
+                    loginView.classList.add('hidden');
+                    setupView.classList.remove('hidden');
+                }
+                authModal.classList.remove('hidden');
             }
         });
 
-        function updateView() {
-            if (currentView === 'blog') {
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = loginForm.email.value;
+            const password = loginForm.password.value;
+            signInWithEmailAndPassword(auth, email, password)
+                .then(() => {
+                    authModal.classList.add('hidden');
+                    authError.classList.add('hidden');
+                })
+                .catch(error => { authError.textContent = "Email ou senha incorretos."; authError.classList.remove('hidden');});
+        });
+
+        setupForm.addEventListener('submit', (e) => {
+             e.preventDefault();
+            const email = setupForm['setup-email'].value;
+            const password = setupForm['setup-password'].value;
+            createUserWithEmailAndPassword(auth, email, password)
+                .then(userCredential => {
+                    const user = userCredential.user;
+                    const adminConfigRef = doc(db, 'config', 'admin');
+                    return setDoc(adminConfigRef, { adminUid: user.uid });
+                })
+                .then(() => {
+                    authModal.classList.add('hidden');
+                    setupError.classList.add('hidden');
+                    adminExists = true;
+                    showNotification("Conta de administrador criada com sucesso!");
+                })
+                .catch(error => {
+                    let msg = "Erro ao criar conta.";
+                    if (error.code === 'auth/weak-password') msg = "A senha deve ter pelo menos 6 caracteres.";
+                    if (error.code === 'auth/email-already-in-use') msg = "Este email já está em uso.";
+                    setupError.textContent = msg;
+                    setupError.classList.remove('hidden');
+                });
+        });
+
+        authModal.addEventListener('click', e => { if (e.target === authModal) authModal.classList.add('hidden'); });
+
+        // --- Gerenciamento de Views ---
+        function setView(view, postId = null) {
+            currentView = view;
+            window.scrollTo({ top: 0 });
+            [blogView, adminView, singlePostView].forEach(v => v.classList.add('hidden'));
+            heroBanner.classList.remove('hidden');
+            const updateHistory = (state, url) => { try { history.pushState(state, "", url); } catch (e) { /* silent fail */ } };
+            if (view === 'blog') {
                 blogView.classList.remove('hidden');
-                adminView.classList.add('hidden');
-            } else if (currentView === 'admin' && isAdminLoggedIn) {
-                blogView.classList.add('hidden');
+                updateHistory({view: 'blog'}, window.location.pathname);
+            } else if (view === 'admin' && auth.currentUser) {
                 adminView.classList.remove('hidden');
+                updateHistory({view: 'admin'}, window.location.pathname);
+            } else if (view === 'single-post' && postId) {
+                const post = allPosts.find(p => p.id === postId);
+                if(post) {
+                    renderSinglePost(post);
+                    singlePostView.classList.remove('hidden');
+                    heroBanner.classList.add('hidden');
+                    updateHistory({view: 'single-post', postId}, `#${postId}`);
+                } else {
+                    setView('blog');
+                }
             } else {
-                currentView = 'blog';
-                blogView.classList.remove('hidden');
-                adminView.classList.add('hidden');
+                setView('blog');
             }
         }
 
-        // --- Funções de Renderização e Filtro ---
+        // --- Funções de Renderização ---
+        function calculateReadingTime(text) {
+            if (!text) return "0 min de leitura";
+            const wordsPerMinute = 200;
+            const words = text.trim().split(/\s+/).length;
+            const time = Math.ceil(words / wordsPerMinute);
+            return time < 1 ? "Menos de 1 min" : `${time} min de leitura`;
+        }
+
+        function formatDate(timestamp) {
+            if (!timestamp?.toDate) return '';
+            return timestamp.toDate().toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' });
+        }
+        
         function renderBlogPosts(posts) {
-            if (!postsContainer) return;
             postsContainer.innerHTML = '';
             if (posts.length === 0) {
-                const isSearching = searchInput && searchInput.value.trim() !== '';
-                const searchTerm = searchInput.value;
-                if(isSearching) {
-                    postsContainer.innerHTML = `<p class="text-gray-400 col-span-full text-center">Nenhum resultado encontrado para "<strong>${searchTerm}</strong>".</p>`;
-                } else {
-                    postsContainer.innerHTML = `<p class="text-gray-400 col-span-full text-center">Nenhuma matéria publicada ainda. Clique no ícone de engrenagem para adicionar a primeira!</p>`;
-                }
+                 postsContainer.innerHTML = `<p class="text-gray-400 col-span-full text-center">Nenhuma matéria encontrada.</p>`;
                 return;
             }
             posts.forEach(post => {
                 const postElement = document.createElement('div');
-                postElement.className = 'bg-white text-gray-800 rounded-xl shadow-lg overflow-hidden transform hover:-translate-y-2 transition duration-300 cursor-pointer';
+                postElement.className = 'bg-gray-800 rounded-xl shadow-lg overflow-hidden transform hover:-translate-y-2 transition duration-300 cursor-pointer flex flex-col';
                 postElement.dataset.id = post.id;
-
                 postElement.innerHTML = `
-                    <img class="h-56 w-full object-cover" src="${post.imageUrl}" alt="Imagem da matéria ${post.title}" onerror="this.onerror=null;this.src='https://placehold.co/600x400/020617/14b8a6?text=Imagem';">
-                    <div class="p-6">
-                        <h2 class="text-2xl font-black text-teal-600 mb-2">${post.title}</h2>
-                        <p class="text-gray-700">${post.subtitle}</p>
+                    <img class="h-56 w-full object-cover" src="${post.imageUrl}" alt="" onerror="this.onerror=null;this.src='https://placehold.co/600x400/020617/14b8a6?text=Imagem';">
+                    <div class="p-6 flex flex-col flex-grow">
+                        <h2 class="text-2xl font-black text-teal-400 mb-2 flex-grow">${post.title}</h2>
+                        <p class="text-gray-400 mb-4">${post.subtitle}</p>
+                        <div class="text-sm text-gray-500 mt-auto pt-4 border-t border-gray-700">
+                            <span>${formatDate(post.createdAt)}</span> &bull;
+                            <span>${calculateReadingTime(post.content)}</span>
+                        </div>
                     </div>
                 `;
-                postElement.addEventListener('click', () => openPostModal(post));
+                postElement.addEventListener('click', () => setView('single-post', post.id));
                 postsContainer.appendChild(postElement);
             });
+        }
+        
+        function parseMarkdown(text = '') {
+            const lines = text.split('\n');
+            let html = '';
+            let inUl = false, inOl = false;
+
+            for (const line of lines) {
+                if (!line.match(/^\s*(\*|\d+\.)\s+/)) {
+                    if (inUl) { html += '</ul>\n'; inUl = false; }
+                    if (inOl) { html += '</ol>\n'; inOl = false; }
+                }
+
+                if (line.match(/^##\s+(.*)/)) {
+                    html += `<h2>${line.replace(/^##\s+/, '')}</h2>\n`;
+                } else if (line.match(/^###\s+(.*)/)) {
+                    html += `<h3>${line.replace(/^###\s+/, '')}</h3>\n`;
+                } else if (line.match(/^\s*\*\s+(.*)/)) {
+                    if (!inUl) { html += '<ul>\n'; inUl = true; }
+                    html += `<li>${line.replace(/^\s*\*\s+/, '')}</li>\n`;
+                } else if (line.match(/^\s*\d+\.\s+(.*)/)) {
+                    if (!inOl) { html += '<ol>\n'; inOl = true; }
+                    html += `<li>${line.replace(/^\s*\d+\.\s+/, '')}</li>\n`;
+                } else if (line.match(/^\s*>\s+(.*)/)) {
+                    html += `<blockquote>${line.replace(/^\s*>\s+/, '')}</blockquote>\n`;
+                } else if (line.match(/^\s*---\s*$/)) {
+                    html += '<hr class="my-8 border-gray-700">\n';
+                } else if (line.trim() !== '') {
+                    let p_tag = '<p>';
+                    let content = line;
+                    if (line.match(/^->\|<-\s+(.*)/)) {
+                        p_tag = '<p style="text-align: center;">';
+                        content = line.replace(/^->\|<-\s+/, '');
+                    } else if (line.match(/^->\|\s+(.*)/)) {
+                        p_tag = '<p style="text-align: right;">';
+                        content = line.replace(/^->\|\s+/, '');
+                    } else if (line.match(/^\|<-\s+(.*)/)) {
+                        p_tag = '<p style="text-align: left;">';
+                        content = line.replace(/^\|<-\s+/, '');
+                    } else if (line.match(/^\|<->\|\s+(.*)/)) {
+                         p_tag = '<p style="text-align: justify;">';
+                        content = line.replace(/^\|<->\|\s+/, '');
+                    }
+                    html += `${p_tag}${content}</p>\n`;
+                }
+            }
+            if (inUl) html += '</ul>\n';
+            if (inOl) html += '</ol>\n';
+
+            return html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                       .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                       .replace(/~~(.*?)~~/g, '<del>$1</del>')
+                       .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+        }
+
+        function renderSinglePost(post) {
+            singlePostView.innerHTML = `
+                <div class="max-w-4xl mx-auto">
+                    <button id="back-to-blog" class="mb-8 text-teal-400 hover:text-teal-300">&larr; Voltar para todas as matérias</button>
+                    <img class="h-96 w-full object-cover rounded-xl mb-8" src="${post.imageUrl}" alt="" onerror="this.onerror=null;this.src='https://placehold.co/1200x600/020617/14b8a6?text=Imagem';">
+                    <div class="flex justify-between items-center mb-4 text-gray-400">
+                        <span>Publicado em ${formatDate(post.createdAt)}</span>
+                        <span>${calculateReadingTime(post.content)}</span>
+                    </div>
+                    <h1 class="text-5xl font-black text-white mb-4">${post.title}</h1>
+                    <p class="text-xl text-gray-400 mb-8">${post.subtitle}</p>
+                    <div class="prose prose-invert max-w-none text-gray-300 content-prose">${parseMarkdown(post.content)}</div>
+                </div>`;
+            document.getElementById('back-to-blog').addEventListener('click', () => setView('blog'));
         }
         
         function renderAdminList(posts) {
@@ -416,178 +568,78 @@
             adminPostsList.innerHTML = '';
             posts.forEach(post => {
                 const item = document.createElement('div');
-                const isVisible = post.isVisible !== false; // Default to true if undefined
+                const isVisible = post.isVisible !== false;
                 item.className = `bg-gray-700 p-4 rounded-lg flex justify-between items-center transition-opacity duration-300 ${isVisible ? 'opacity-100' : 'opacity-50'}`;
                 item.innerHTML = `
                     <p class="text-white flex-1 truncate pr-4">${post.title}</p>
                     <div class="flex items-center space-x-4 flex-shrink-0">
-                        <div class="flex items-center text-sm text-gray-400" title="Visualizações">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z" /><path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.022 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" /></svg>
-                            <span>${post.viewCount || 0}</span>
-                        </div>
-                         <div class="flex items-center text-sm text-gray-400" title="Compartilhamentos">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor"><path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z" /></svg>
-                            <span>${post.shareCount || 0}</span>
-                        </div>
-                        <div class="flex items-center space-x-2">
-                            <button data-id="${post.id}" data-visible="${isVisible}" class="toggle-visibility-btn p-2 rounded hover:bg-gray-600 transition-colors" title="${isVisible ? 'Ocultar Matéria' : 'Publicar Matéria'}">
-                                ${isVisible ? 
-                                    `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z" /><path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.022 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" /></svg>` :
-                                    `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a1 1 0 001.414-1.414l-1.414-1.414A10.004 10.004 0 00-1.172-1.172L3.707 2.293zm4.78 4.78a2 2 0 012.828 0l.001.001a2 2 0 11-2.829-2.828l-.001-.001zM10 12a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" /><path d="M10 3a10.004 10.004 0 00-7.293 3.293l1.414 1.414A8.005 8.005 0 0110 5c2.485 0 4.733 1.116 6.182 2.872l1.414-1.414A10.004 10.004 0 0010 3zM1.458 10c1.274 4.057 5.022 7 9.542 7 .848 0 1.673-.105 2.468-.305l-1.44-1.44a8.01 8.01 0 01-1.028.145c-4.418 0-7.98-2.686-9.08-6.195a8.004 8.004 0 012.336-5.111L1.458 10z" /></svg>`
-                                }
-                            </button>
-                            <button data-id="${post.id}" class="edit-btn p-2 rounded bg-blue-600 text-white hover:bg-blue-700 transition-colors" title="Editar"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" /><path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd" /></svg></button>
-                            <button data-id="${post.id}" class="delete-btn p-2 rounded bg-red-600 text-white hover:bg-red-700 transition-colors" title="Excluir"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" /></svg></button>
-                        </div>
+                        <div class="flex items-center text-sm text-gray-400" title="Visualizações"><svg class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z" /><path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.022 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" /></svg><span>${post.viewCount || 0}</span></div>
+                        <div class="flex items-center text-sm text-gray-400" title="Compartilhamentos"><svg class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor"><path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z" /></svg><span>${post.shareCount || 0}</span></div>
+                        <div class="flex items-center space-x-2"><button data-id="${post.id}" data-visible="${isVisible}" class="toggle-visibility-btn p-2 rounded hover:bg-gray-600" title="${isVisible ? 'Ocultar' : 'Publicar'}">${isVisible ? `<svg class="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z" /><path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.022 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" /></svg>` : `<svg class="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a1 1 0 001.414-1.414l-1.414-1.414A10.004 10.004 0 00-1.172-1.172L3.707 2.293zm4.78 4.78a2 2 0 012.828 0l.001.001a2 2 0 11-2.829-2.828l-.001-.001zM10 12a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" /><path d="M10 3a10.004 10.004 0 00-7.293 3.293l1.414 1.414A8.005 8.005 0 0110 5c2.485 0 4.733 1.116 6.182 2.872l1.414-1.414A10.004 10.004 0 0010 3zM1.458 10c1.274 4.057 5.022 7 9.542 7 .848 0 1.673-.105 2.468-.305l-1.44-1.44a8.01 8.01 0 01-1.028.145c-4.418 0-7.98-2.686-9.08-6.195a8.004 8.004 0 012.336-5.111L1.458 10z" /></svg>`}</button><button data-id="${post.id}" class="edit-btn p-2 rounded bg-blue-600" title="Editar"><svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" /><path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd" /></svg></button><button data-id="${post.id}" class="delete-btn p-2 rounded bg-red-600" title="Excluir"><svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" /></svg></button></div>
                     </div>
                 `;
                 adminPostsList.appendChild(item);
             });
         }
+        
+        // --- Dashboard ---
+        function renderDashboard() {
+            if (!dashboardContainer || !auth.currentUser) return;
+            const topPosts = [...allPosts].sort((a,b) => (b.viewCount || 0) - (a.viewCount || 0)).slice(0, 5);
+            let topPostsHTML = topPosts.map(p => `<li class="flex justify-between items-center text-sm"><span>${p.title}</span> <span class="font-bold">${p.viewCount || 0}</span></li>`).join('');
+            const shareChannels = {}, totalShares = allPosts.reduce((acc, post) => {
+                if(post.shareChannels) Object.entries(post.shareChannels).forEach(([k,v]) => shareChannels[k] = (shareChannels[k] || 0) + v);
+                return acc + (post.shareCount || 0);
+            }, 0);
+            const topChannel = Object.entries(shareChannels).sort((a,b) => b[1] - a[1])[0];
+            dashboardContainer.innerHTML = `
+                <div class="bg-gray-800 p-6 rounded-lg">
+                    <h4 class="text-lg font-bold text-white mb-3">Matérias Mais Lidas</h4>
+                    <ul class="space-y-2 text-gray-300">${topPostsHTML || '<li>Nenhuma visualização ainda.</li>'}</ul>
+                </div>
+                <div class="bg-gray-800 p-6 rounded-lg">
+                    <h4 class="text-lg font-bold text-white mb-3">Engajamento</h4>
+                    <div class="text-center"><p class="text-gray-400 text-sm">Canal Mais Popular</p><p class="text-3xl font-black text-teal-400 capitalize">${topChannel ? topChannel[0] : '-'}</p><p class="text-gray-400 text-sm mb-4">${topChannel ? topChannel[1] + ' vezes' : ''}</p><p class="text-gray-400 text-sm">Total de Compartilhamentos</p><p class="text-3xl font-black text-teal-400">${totalShares}</p></div>
+                </div>`;
+        }
 
 
         function filterAndRenderPosts() {
             const searchTerm = searchInput.value.toLowerCase().trim();
-            // Primeiro, filtra para posts visíveis para o blog público
             const visiblePosts = allPosts.filter(post => post.isVisible !== false);
-
-            const postsToRender = searchTerm ? visiblePosts.filter(post => 
-               post.title.toLowerCase().includes(searchTerm) ||
-               post.subtitle.toLowerCase().includes(searchTerm) ||
-               post.content.toLowerCase().includes(searchTerm)
-           ) : visiblePosts;
-
-           renderBlogPosts(postsToRender);
+            const postsToRender = searchTerm ? visiblePosts.filter(p => p.title.toLowerCase().includes(searchTerm) || p.subtitle.toLowerCase().includes(searchTerm)) : visiblePosts;
+            renderBlogPosts(postsToRender);
         }
         
-        // Listener para os posts do Firestore
-        function listenToPosts() {
-            if (!postsCollection) return;
+        async function listenToPosts() {
+            await checkAdminExists();
+            if (!postsCollection) postsCollection = collection(db, 'posts');
             onSnapshot(postsCollection, (snapshot) => {
                 allPosts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 allPosts.sort((a, b) => (b.createdAt?.toDate() || 0) - (a.createdAt?.toDate() || 0));
-                
                 filterAndRenderPosts();
-                if (isAdminLoggedIn) {
+                if (auth.currentUser) {
                     renderAdminList(allPosts);
+                    renderDashboard();
                 }
-                
                 if (isInitialLoad) {
-                    handleDeepLink();
+                    handleUrlChange();
                     isInitialLoad = false;
                 }
-
             }, (error) => {
                 console.error("FIRESTORE READ ERROR:", error);
-                showNotification("Erro ao ler matérias. Verifique as regras do Firestore e o console.", true);
                 updateDbStatus('error');
             });
         }
         
         // --- Funções de Analytics ---
-        async function incrementShareCount(postId) {
+        async function incrementViewCount(postId) {
             try {
-                const postRef = doc(db, 'posts', postId);
-                await updateDoc(postRef, { shareCount: increment(1) });
-            } catch (error) {
-                console.error("Error updating share count:", error);
-            }
-        }
-
-        // --- Funções do Modal de Post e Confirmação ---
-        function closePostModal() {
-            postModal.classList.add('hidden');
-            history.pushState(null, null, window.location.pathname + window.location.search);
-        }
-
-        async function openPostModal(post) {
-            // Incrementa a contagem de visualizações
-             try {
-                const postRef = doc(db, 'posts', post.id);
-                await updateDoc(postRef, { viewCount: increment(1) });
-            } catch (error) {
-                console.error("Error updating view count:", error);
-            }
-
-            history.pushState(null, null, '#' + post.id);
-
-            const parseMarkdown = (text = '') => {
-                 return text
-                    .replace(/^### (.*$)/gim, '<h3 class="text-xl font-bold mt-4 mb-2">$1</h3>')
-                    .replace(/^## (.*$)/gim, '<h2 class="text-2xl font-bold mt-6 mb-3">$1</h2>')
-                    .replace(/^# (.*$)/gim, '<h1 class="text-3xl font-black mt-8 mb-4">$1</h1>')
-                    .replace(/\*\*(.*)\*\*/gim, '<strong>$1</strong>')
-                    .replace(/\*(.*)\*/gim, '<em>$1</em>')
-                    .replace(/\[(.*?)\]\((.*?)\)/gim, '<a href="$2" target="_blank" rel="noopener noreferrer" class="text-teal-400 hover:underline">$1</a>')
-                    .split('\n').map(p => p.trim() ? `<p class="mb-4">${p}</p>` : '').join('');
-            };
-
-            modalContent.innerHTML = `
-                <button id="close-modal-button" class="absolute top-4 right-4 text-gray-400 hover:text-white text-3xl z-30">&times;</button>
-                <img class="h-64 w-full object-cover rounded-t-xl" src="${post.imageUrl}" alt="Imagem da matéria ${post.title}" onerror="this.onerror=null;this.src='https://placehold.co/600x400/020617/14b8a6?text=Imagem';">
-                <div class="p-8">
-                     <div class="flex justify-between items-start mb-6">
-                        <div>
-                            <h1 class="text-4xl font-black text-teal-500 mb-2">${post.title}</h1>
-                            <p class="text-lg text-gray-400">${post.subtitle}</p>
-                        </div>
-                        <div class="relative ml-4 flex-shrink-0">
-                            <button id="share-toggle-button" title="Compartilhar" class="bg-gray-700 hover:bg-teal-500 text-white font-bold p-3 rounded-full transition duration-300">
-                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12s-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.368a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
-                                </svg>
-                            </button>
-                            <div id="share-options" class="hidden absolute right-0 mt-2 w-48 bg-gray-700 rounded-lg shadow-xl z-20 overflow-hidden"></div>
-                        </div>
-                    </div>
-                    <div class="prose prose-invert max-w-none text-gray-300 content-prose">${parseMarkdown(post.content)}</div>
-                </div>`;
-            postModal.classList.remove('hidden');
-
-            document.getElementById('close-modal-button').addEventListener('click', closePostModal);
-            
-            // Share Logic
-            const shareToggleButton = document.getElementById('share-toggle-button');
-            const shareOptions = document.getElementById('share-options');
-
-            if (shareToggleButton && shareOptions) {
-                const postUrl = window.location.href;
-                const postTitle = post.title;
-
-                shareOptions.innerHTML = `
-                    <a href="https://api.whatsapp.com/send?text=${encodeURIComponent(postTitle + ' - ' + postUrl)}" target="_blank" rel="noopener noreferrer" class="share-link flex items-center w-full px-4 py-3 text-sm text-white hover:bg-teal-600 transition-colors duration-200">
-                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.487 5.235 3.487 8.413 0 6.557-5.338 11.892-11.894 11.892-1.99 0-3.903-.52-5.586-1.456l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.447-4.435-9.884-9.888-9.884-5.448 0-9.886 4.434-9.889 9.885.002 2.024.603 3.995 1.696 5.665l-.34 1.219 1.241-.328z"/></svg><span class="ml-3 pointer-events-none">WhatsApp</span></a>
-                    <a href="https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(postUrl)}" target="_blank" rel="noopener noreferrer" class="share-link flex items-center w-full px-4 py-3 text-sm text-white hover:bg-teal-600 transition-colors duration-200">
-                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.115-1.333h2.885v-5h-3.808c-3.596 0-5.192 1.583-5.192 4.615v2.385z"/></svg><span class="ml-3 pointer-events-none">Facebook</span></a>
-                    <a href="https://twitter.com/intent/tweet?url=${encodeURIComponent(postUrl)}&text=${encodeURIComponent(postTitle)}" target="_blank" rel="noopener noreferrer" class="share-link flex items-center w-full px-4 py-3 text-sm text-white hover:bg-teal-600 transition-colors duration-200">
-                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616v.064c0 2.295 1.616 4.22 3.766 4.662-.69.188-1.426.233-2.16.084.62 1.93 2.44 3.338 4.6 3.374-1.742 1.358-3.94 2.066-6.32 2.066-.41 0-.814-.024-1.21-.072 2.27 1.46 5.048 2.308 8.076 2.308 9.69 0 14.992-8.034 14.992-14.992 0-.228-.004-.455-.014-.682a10.724 10.724 0 002.633-2.724z"/></svg><span class="ml-3 pointer-events-none">Twitter / X</span></a>
-                    <a href="https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(postUrl)}" target="_blank" rel="noopener noreferrer" class="share-link flex items-center w-full px-4 py-3 text-sm text-white hover:bg-teal-600 transition-colors duration-200">
-                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M4.98 3.5c0 1.381-1.11 2.5-2.48 2.5s-2.48-1.119-2.48-2.5c0-1.38 1.11-2.5 2.48-2.5s2.48 1.12 2.48 2.5zm.02 4.5h-5v16h5v-16zm7.982 0h-4.968v16h4.969v-8.399c0-4.67 6.029-5.052 6.029 0v8.399h4.988v-10.131c0-7.88-8.922-7.59-11.018-3.714v-2.155z"/></svg><span class="ml-3 pointer-events-none">LinkedIn</span></a>
-                     <button id="instagram-share-button" class="share-btn w-full text-left flex items-center px-4 py-3 text-sm text-white hover:bg-teal-600 transition-colors duration-200">
-                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.85s-.012 3.584-.07 4.85c-.148 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07s-3.584-.012-4.85-.07c-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.85s.012-3.584.07-4.85c.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.85-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948s.014 3.667.072 4.947c.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072s3.667-.014 4.947-.072c4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948s-.014-3.667-.072-4.947c-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.689-.073-4.948-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.162 6.162 6.162 6.162-2.759 6.162-6.162-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4s1.791-4 4-4 4 1.79 4 4-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44 1.441-.645 1.441-1.44-.645-1.44-1.441-1.44z"/></svg><span class="ml-3 pointer-events-none">Instagram</span></button>
-                    <button id="copy-link-button" class="share-btn w-full text-left flex items-center px-4 py-3 text-sm text-white hover:bg-teal-600 transition-colors duration-200">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg><span class="ml-3 pointer-events-none">Copiar Link</span></button>`;
-
-                shareToggleButton.addEventListener('click', (e) => { e.stopPropagation(); shareOptions.classList.toggle('hidden'); });
-                
-                shareOptions.addEventListener('click', (e) => {
-                    const target = e.target.closest('.share-link, .share-btn');
-                    if (target) {
-                        incrementShareCount(post.id);
-                        if(target.id === 'instagram-share-button' || target.id === 'copy-link-button') {
-                            navigator.clipboard.writeText(postUrl).then(() => { 
-                                const msg = target.id === 'instagram-share-button' ? 'Link copiado! Cole no seu story ou post.' : 'Link da matéria copiado!';
-                                showNotification(msg); 
-                                shareOptions.classList.add('hidden'); 
-                            });
-                        }
-                    }
-                });
-            }
+                await updateDoc(doc(db, 'posts', postId), { viewCount: increment(1) });
+            } catch (error) { console.error("Error updating view count:", error); }
         }
         
-        postModal.addEventListener('click', (e) => { if (e.target === postModal) closePostModal(); });
-
+        // --- Modals de confirmação ---
         function showConfirmModal(onConfirm) {
             confirmModal.classList.remove('hidden');
             confirmModalConfirmBtn.onclick = () => { onConfirm(); hideConfirmModal(); };
@@ -596,14 +648,22 @@
         confirmModalCancelBtn.addEventListener('click', hideConfirmModal);
         confirmModal.addEventListener('click', (e) => { if (e.target === confirmModal) hideConfirmModal(); });
         
-        function handleDeepLink() {
+        // --- Navegação e Deep Link ---
+        function handleUrlChange() {
             const postId = window.location.hash.substring(1);
             if(postId) {
-                const postToOpen = allPosts.find(p => p.id === postId);
-                if (postToOpen) openPostModal(postToOpen);
-                else { console.warn(`Matéria com ID "${postId}" do link não foi encontrada.`); closePostModal();}
+                const post = allPosts.find(p => p.id === postId);
+                if (post) {
+                    setView('single-post', postId);
+                    incrementViewCount(postId);
+                } else {
+                    setView('blog');
+                }
+            } else {
+                setView('blog');
             }
         }
+        window.addEventListener('popstate', handleUrlChange);
 
         // --- Lógica do Formulário e CRUD ---
         postForm.addEventListener('submit', async (e) => {
@@ -616,23 +676,18 @@
             try {
                 if (id) {
                     await updateDoc(doc(db, 'posts', id), postData);
-                    showNotification('Matéria atualizada com sucesso!');
+                    showNotification('Matéria atualizada!');
                 } else {
                     await addDoc(postsCollection, { 
-                        ...postData, 
-                        createdAt: serverTimestamp(), 
-                        isVisible: true,
-                        viewCount: 0,
-                        shareCount: 0
+                        ...postData, createdAt: serverTimestamp(), isVisible: true,
+                        viewCount: 0, shareCount: 0, shareChannels: {}
                     });
-                    showNotification('Matéria publicada com sucesso!');
+                    showNotification('Matéria publicada!');
                 }
                 resetForm();
             } catch (error) {
                 console.error("FIRESTORE WRITE ERROR:", error);
-                let msg = "Erro ao salvar. Verifique o console (F12).";
-                if (error.code === 'permission-denied') msg = "Erro de permissão! Verifique as regras de segurança do Firestore.";
-                showNotification(msg, true);
+                showNotification(error.code === 'permission-denied' ? "Erro de permissão!" : "Erro ao salvar.", true);
             } finally {
                 submitButton.disabled = false;
                 resetForm();
@@ -645,41 +700,34 @@
             const id = button.dataset.id;
             
              if (button.classList.contains('toggle-visibility-btn')) {
-                const currentVisibility = button.dataset.visible === 'true';
-                const newVisibility = !currentVisibility;
+                const newVisibility = !(button.dataset.visible === 'true');
                 try {
                     await updateDoc(doc(db, 'posts', id), { isVisible: newVisibility });
-                    showNotification(`Matéria ${newVisibility ? 'está visível' : 'foi ocultada'}.`);
-                } catch (error) {
-                    console.error("FIRESTORE VISIBILITY UPDATE ERROR:", error);
-                    showNotification('Erro ao atualizar visibilidade.', true);
-                }
+                    showNotification(`Matéria ${newVisibility ? 'visível' : 'ocultada'}.`);
+                } catch (error) { showNotification('Erro ao atualizar.', true); }
             }
             
             if (button.classList.contains('delete-btn')) {
                 showConfirmModal(async () => {
                     try {
                         await deleteDoc(doc(db, 'posts', id));
-                        showNotification('Matéria excluída com sucesso!');
-                    } catch (error) { console.error("FIRESTORE DELETE ERROR:", error); showNotification('Falha ao excluir. Verifique as regras e o console.', true); }
+                        showNotification('Matéria excluída!');
+                    } catch (error) { showNotification('Falha ao excluir.', true); }
                 });
             }
             
             if (button.classList.contains('edit-btn')) {
-                try {
-                    const docSnap = await getDoc(doc(db, 'posts', id));
-                    if (docSnap.exists()) {
-                        const postToEdit = docSnap.data();
-                        postIdInput.value = id;
-                        titleInput.value = postToEdit.title;
-                        subtitleInput.value = postToEdit.subtitle;
-                        imageUrlInput.value = postToEdit.imageUrl;
-                        contentInput.value = postToEdit.content;
-                        submitButton.textContent = 'Atualizar Matéria';
-                        cancelEditButton.classList.remove('hidden');
-                        window.scrollTo({ top: 0, behavior: 'smooth' });
-                    }
-                } catch (error) { console.error("FIRESTORE GET ERROR:", error); showNotification("Erro ao carregar dados para edição.", true); }
+                const postToEdit = allPosts.find(p => p.id === id);
+                if (postToEdit) {
+                    postIdInput.value = id;
+                    titleInput.value = postToEdit.title;
+                    subtitleInput.value = postToEdit.subtitle;
+                    imageUrlInput.value = postToEdit.imageUrl;
+                    contentInput.value = postToEdit.content;
+                    submitButton.textContent = 'Atualizar Matéria';
+                    cancelEditButton.classList.remove('hidden');
+                    postForm.scrollIntoView({ behavior: 'smooth' });
+                }
             }
         });
 
@@ -695,36 +743,65 @@
         // --- Lógica de Busca ---
         searchButton.addEventListener('click', () => {
             searchInput.classList.toggle('hidden');
-            if (!searchInput.classList.contains('hidden')) {
-                searchInput.classList.remove('w-0');
-                searchInput.classList.add('w-48');
-                searchInput.focus();
-            } else {
-                searchInput.classList.remove('w-48');
-                searchInput.classList.add('w-0');
-            }
+            searchInput.classList.toggle('w-0');
+            searchInput.classList.toggle('w-48');
+            if (!searchInput.classList.contains('hidden')) searchInput.focus();
         });
 
-        searchInput.addEventListener('input', (e) => {
-            if (currentView !== 'blog') {
-                currentView = 'blog';
-                updateView();
-            }
+        searchInput.addEventListener('input', () => {
+            if (currentView !== 'blog') setView('blog');
             filterAndRenderPosts();
         });
 
-        // Listener global para fechar o menu de compartilhamento ao clicar fora
-        document.addEventListener('click', (e) => {
-            const shareOptions = document.getElementById('share-options');
-            const shareToggleButton = document.getElementById('share-toggle-button');
-            
-            if (shareOptions && !shareOptions.classList.contains('hidden')) {
-                 if (shareToggleButton && !shareToggleButton.contains(e.target) && !shareOptions.contains(e.target)) {
-                    shareOptions.classList.add('hidden');
-                }
-            }
-        });
+        // --- Barra de Formatação ---
+        document.getElementById('format-toolbar').addEventListener('click', (e) => {
+            const btn = e.target.closest('.format-btn');
+            if(!btn) return;
 
+            const format = btn.dataset.format;
+            const textarea = contentInput;
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+            const selectedText = textarea.value.substring(start, end);
+
+            if (format.startsWith('align')) {
+                const markers = { 'align-left': '|<- ', 'align-center': '->|<- ', 'align-right': '->| ', 'align-justify': '|<->| ' };
+                const prefix = markers[format];
+                let lineStart = start;
+                while (lineStart > 0 && textarea.value[lineStart - 1] !== '\n') { lineStart--; }
+                let lineEnd = end;
+                while (lineEnd < textarea.value.length && textarea.value[lineEnd] !== '\n') { lineEnd++; }
+                const selectedLinesText = textarea.value.substring(lineStart, lineEnd);
+                const newLines = selectedLinesText.split('\n').map(line => {
+                    if (line.trim() === '') return line;
+                    return prefix + line.replace(/^(\->\|<-\s|->\|\s|\|<-\s|\|<->\|\s)/, '');
+                });
+                textarea.setRangeText(newLines.join('\n'), lineStart, lineEnd, 'select');
+                textarea.focus();
+                return;
+            }
+
+            let prefix = '', suffix = '', replacement = selectedText;
+            switch(format) {
+                case 'bold': prefix = '**'; suffix = '**'; break;
+                case 'italic': prefix = '*'; suffix = '*'; break;
+                case 'strikethrough': prefix = '~~'; suffix = '~~'; break;
+                case 'h2': prefix = '\n## '; suffix = '\n'; break;
+                case 'h3': prefix = '\n### '; suffix = '\n'; break;
+                case 'blockquote': prefix = '\n> '; suffix = '\n'; break;
+                case 'ul': replacement = `\n* ${selectedText.replace(/\n/g, '\n* ')}\n`; break;
+                case 'ol': replacement = `\n1. ${selectedText.replace(/\n/g, '\n1. ')}\n`; break;
+                case 'hr': replacement = '\n---\n'; break;
+                case 'link': 
+                    const url = prompt("Insira a URL do link:");
+                    if(url) { prefix = '['; suffix = `](${url})`; }
+                    break;
+            }
+            if (prefix || suffix) { replacement = `${prefix}${selectedText}${suffix}`; }
+            textarea.setRangeText(replacement, start, end, 'end');
+            textarea.focus();
+        });
     </script>
 </body>
 </html>
+
