@@ -212,44 +212,8 @@
 
         <!-- Auth Modal -->
         <div id="auth-modal" class="fixed inset-0 bg-black bg-opacity-75 backdrop-blur-sm flex items-center justify-center hidden z-50 p-4">
-            <div class="bg-gray-800 rounded-lg shadow-2xl p-8 max-w-sm w-full">
-                <!-- Login View -->
-                <div id="login-view">
-                    <h3 class="text-xl font-bold text-white mb-6 text-center">Acesso Administrativo</h3>
-                    <form id="login-form" class="space-y-4">
-                        <div>
-                            <label for="email" class="block text-sm font-medium text-gray-300 mb-1">Email</label>
-                            <input type="email" id="email" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-teal-500" required>
-                        </div>
-                        <div>
-                            <label for="password" class="block text-sm font-medium text-gray-300 mb-1">Senha</label>
-                            <input type="password" id="password" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-teal-500" required>
-                        </div>
-                        <p id="auth-error" class="text-red-500 text-sm hidden">Email ou senha inválidos.</p>
-                        <div class="pt-2">
-                            <button type="submit" class="w-full bg-teal-500 text-white font-bold py-2 px-6 rounded-lg hover:bg-teal-600 transition duration-300">Entrar</button>
-                        </div>
-                    </form>
-                </div>
-                 <!-- Setup View (First time admin creation) -->
-                <div id="setup-view" class="hidden">
-                    <h3 class="text-xl font-bold text-white mb-4 text-center">Criar Conta de Administrador</h3>
-                    <p class="text-sm text-gray-400 mb-6 text-center">Como este é o primeiro acesso, por favor crie sua conta de administrador. Esta ação só pode ser feita uma vez.</p>
-                    <form id="setup-form" class="space-y-4">
-                        <div>
-                            <label for="setup-email" class="block text-sm font-medium text-gray-300 mb-1">Email</label>
-                            <input type="email" id="setup-email" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" required>
-                        </div>
-                        <div>
-                            <label for="setup-password" class="block text-sm font-medium text-gray-300 mb-1">Senha (mínimo 6 caracteres)</label>
-                            <input type="password" id="setup-password" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" required>
-                        </div>
-                        <p id="setup-error" class="text-red-500 text-sm hidden"></p>
-                        <div class="pt-2">
-                             <button type="submit" class="w-full bg-teal-500 text-white font-bold py-2 px-6 rounded-lg hover:bg-teal-600">Criar e Acessar</button>
-                        </div>
-                    </form>
-                </div>
+            <div id="auth-container" class="bg-gray-800 rounded-lg shadow-2xl p-8 max-w-sm w-full">
+                <!-- Conteúdo do Auth (Login/Setup) será injetado aqui -->
             </div>
         </div>
     </div>
@@ -301,12 +265,7 @@
         const searchButton = document.getElementById('search-button');
         const searchInput = document.getElementById('search-input');
         const authModal = document.getElementById('auth-modal');
-        const loginView = document.getElementById('login-view');
-        const setupView = document.getElementById('setup-view');
-        const loginForm = document.getElementById('login-form');
-        const setupForm = document.getElementById('setup-form');
-        const authError = document.getElementById('auth-error');
-        const setupError = document.getElementById('setup-error');
+        const authContainer = document.getElementById('auth-container');
         const heroBanner = document.getElementById('hero-banner');
         const dashboardContainer = document.querySelector('#dashboard .grid');
 
@@ -314,7 +273,6 @@
         let postsCollection;
         let allPosts = [];
         let isInitialLoad = true;
-        let adminExists = false;
         
         // --- Funções de Status e Notificação ---
         function updateDbStatus(status) {
@@ -336,27 +294,18 @@
         }
 
         // --- Autenticação e Inicialização ---
-        async function checkAdminExists() {
-            const adminConfigRef = doc(db, 'config', 'admin');
-            try {
-                const docSnap = await getDoc(adminConfigRef);
-                adminExists = docSnap.exists();
-            } catch (error) {
-                console.warn("Could not check for admin config, assuming it doesn't exist.", error.message);
-                adminExists = false;
-            }
-        }
-
         onAuthStateChanged(auth, user => {
             updateAdminButtonIcon(user);
             if (user) {
                 if (currentView !== 'admin') {
                     setView('admin');
                 }
+                renderAdminList(allPosts);
+                renderDashboard();
             } else {
-                 if (currentView === 'admin') {
+                if (currentView === 'admin') {
                     setView('blog');
-                 }
+                }
             }
         });
 
@@ -373,57 +322,37 @@
         
         adminToggleButton.addEventListener('click', () => {
             if (auth.currentUser) {
-                signOut(auth);
-                showNotification("Você saiu da sua conta.");
+                signOut(auth).then(() => showNotification("Você saiu da sua conta."));
             } else {
-                if (adminExists) {
-                    loginView.classList.remove('hidden');
-                    setupView.classList.add('hidden');
-                } else {
-                    loginView.classList.add('hidden');
-                    setupView.classList.remove('hidden');
-                }
+                authContainer.innerHTML = `
+                    <h3 class="text-xl font-bold text-white mb-6 text-center">Acesso Administrativo</h3>
+                    <form id="login-form" class="space-y-4">
+                        <div><label for="email" class="block text-sm font-medium text-gray-300 mb-1">Email</label><input type="email" id="email" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" required></div>
+                        <div><label for="password" class="block text-sm font-medium text-gray-300 mb-1">Senha</label><input type="password" id="password" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" required></div>
+                        <p id="auth-error" class="text-red-500 text-sm hidden"></p>
+                        <div class="pt-2"><button type="submit" class="w-full bg-teal-500 text-white font-bold py-2 px-6 rounded-lg hover:bg-teal-600">Entrar</button></div>
+                    </form>`;
+                document.getElementById('login-form').addEventListener('submit', handleLogin);
                 authModal.classList.remove('hidden');
             }
         });
-
-        loginForm.addEventListener('submit', (e) => {
+        
+        function handleLogin(e) {
             e.preventDefault();
-            const email = loginForm.email.value;
-            const password = loginForm.password.value;
+            const email = e.target.email.value;
+            const password = e.target.password.value;
+            const errorEl = document.getElementById('auth-error');
             signInWithEmailAndPassword(auth, email, password)
                 .then(() => {
                     authModal.classList.add('hidden');
-                    authError.classList.add('hidden');
+                    errorEl.classList.add('hidden');
                 })
-                .catch(error => { authError.textContent = "Email ou senha incorretos."; authError.classList.remove('hidden');});
-        });
-
-        setupForm.addEventListener('submit', (e) => {
-             e.preventDefault();
-            const email = setupForm['setup-email'].value;
-            const password = setupForm['setup-password'].value;
-            createUserWithEmailAndPassword(auth, email, password)
-                .then(userCredential => {
-                    const user = userCredential.user;
-                    const adminConfigRef = doc(db, 'config', 'admin');
-                    return setDoc(adminConfigRef, { adminUid: user.uid });
-                })
-                .then(() => {
-                    authModal.classList.add('hidden');
-                    setupError.classList.add('hidden');
-                    adminExists = true;
-                    showNotification("Conta de administrador criada com sucesso!");
-                })
-                .catch(error => {
-                    let msg = "Erro ao criar conta.";
-                    if (error.code === 'auth/weak-password') msg = "A senha deve ter pelo menos 6 caracteres.";
-                    if (error.code === 'auth/email-already-in-use') msg = "Este email já está em uso.";
-                    setupError.textContent = msg;
-                    setupError.classList.remove('hidden');
+                .catch(error => { 
+                    errorEl.textContent = "Email não autorizado ou senha incorreta."; 
+                    errorEl.classList.remove('hidden');
                 });
-        });
-
+        }
+        
         authModal.addEventListener('click', e => { if (e.target === authModal) authModal.classList.add('hidden'); });
 
         // --- Gerenciamento de Views ---
@@ -611,17 +540,21 @@
             renderBlogPosts(postsToRender);
         }
         
-        async function listenToPosts() {
-            await checkAdminExists();
-            if (!postsCollection) postsCollection = collection(db, 'posts');
+        async function initializeAppLogic() {
+            updateDbStatus('connecting');
+            postsCollection = collection(db, 'posts');
             onSnapshot(postsCollection, (snapshot) => {
+                updateDbStatus('connected');
                 allPosts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 allPosts.sort((a, b) => (b.createdAt?.toDate() || 0) - (a.createdAt?.toDate() || 0));
+                
                 filterAndRenderPosts();
+                
                 if (auth.currentUser) {
                     renderAdminList(allPosts);
                     renderDashboard();
                 }
+
                 if (isInitialLoad) {
                     handleUrlChange();
                     isInitialLoad = false;
@@ -631,6 +564,7 @@
                 updateDbStatus('error');
             });
         }
+        initializeAppLogic();
         
         // --- Funções de Analytics ---
         async function incrementViewCount(postId) {
@@ -668,6 +602,10 @@
         // --- Lógica do Formulário e CRUD ---
         postForm.addEventListener('submit', async (e) => {
             e.preventDefault();
+             if(!auth.currentUser) {
+                showNotification("Acesso negado. Faça o login para continuar.", true);
+                return;
+            }
             const id = postIdInput.value;
             const postData = { title: titleInput.value, subtitle: subtitleInput.value, imageUrl: imageUrlInput.value, content: contentInput.value };
             submitButton.disabled = true;
@@ -687,7 +625,7 @@
                 resetForm();
             } catch (error) {
                 console.error("FIRESTORE WRITE ERROR:", error);
-                showNotification(error.code === 'permission-denied' ? "Erro de permissão!" : "Erro ao salvar.", true);
+                showNotification("Erro ao salvar. Verifique as permissões do Firestore.", true);
             } finally {
                 submitButton.disabled = false;
                 resetForm();
@@ -696,7 +634,7 @@
 
         adminPostsList.addEventListener('click', async (e) => {
             const button = e.target.closest('button');
-            if (!button) return;
+            if (!button || !auth.currentUser) return;
             const id = button.dataset.id;
             
              if (button.classList.contains('toggle-visibility-btn')) {
