@@ -5,13 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Evereste TechNews</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://unpkg.com/jspdf-autotable"></script>
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #030712; /* Fundo ainda mais escuro */
+            background-color: #0d1117;
         }
         /* Estilo para a barra de rolagem */
         ::-webkit-scrollbar {
@@ -22,27 +26,18 @@
         }
         ::-webkit-scrollbar-thumb {
             background: #1e40af;
-            border-radius: 10px;
         }
         ::-webkit-scrollbar-thumb:hover {
             background: #1d4ed8;
         }
-        .content-prose {
-            color: #d1d5db;
-        }
-        .content-prose h1 { font-size: 2.25rem; line-height: 2.5rem; font-weight: 900; margin-bottom: 1.5rem; color: #fff; }
-        .content-prose h2 { font-size: 1.875rem; line-height: 2.25rem; font-weight: 700; margin-bottom: 1rem; color: #fff; margin-top: 2rem;}
-        .content-prose h3 { font-size: 1.5rem; line-height: 2rem; font-weight: 700; margin-bottom: 0.75rem; color: #fff; margin-top: 1.5rem;}
-        .content-prose p { 
-            margin-bottom: 1rem; 
-            line-height: 1.75; 
-            font-size: 1.125rem;
-            text-align: justify;
-        }
-        .content-prose a { color: #38bdf8; text-decoration: underline; }
-        .content-prose ul, .content-prose ol { list-style-position: inside; margin-left: 1rem; margin-bottom: 1rem; font-size: 1.125rem;}
-        .content-prose li { margin-bottom: 0.5rem; }
-        .content-prose blockquote { border-left: 4px solid #4b5563; padding-left: 1rem; font-style: italic; color: #9ca3af; }
+        .content-prose h1 { @apply text-4xl font-black mb-6 text-white; }
+        .content-prose h2 { @apply text-3xl font-bold my-4 text-gray-100; }
+        .content-prose h3 { @apply text-2xl font-bold my-4 text-gray-200; }
+        .content-prose p { @apply mb-4 leading-relaxed text-lg text-justify text-gray-300; }
+        .content-prose a { @apply text-teal-400 hover:underline; }
+        .content-prose ul, .content-prose ol { @apply list-inside ml-4 mb-4 text-lg text-gray-300; }
+        .content-prose li { @apply mb-2; }
+        .content-prose blockquote { @apply border-l-4 border-gray-600 pl-4 italic text-gray-400; }
         
         #notification-toast {
             transition: opacity 0.5s, transform 0.5s;
@@ -52,19 +47,10 @@
             transition: width 0.3s ease-in-out;
         }
         .format-btn {
-            padding: 0.5rem;
-            border-radius: 0.25rem;
-            transition: background-color 0.2s;
-            font-weight: bold;
-            color: #d1d5db;
-            width: 32px;
-            height: 32px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            @apply p-2 rounded transition-colors font-bold text-gray-200 w-8 h-8 flex items-center justify-center;
         }
         .format-btn:hover {
-            background-color: #4b5563;
+            @apply bg-gray-600;
         }
         .format-btn svg {
             width: 20px;
@@ -86,13 +72,13 @@
                     <h1 class="text-2xl font-black text-white tracking-wider">EVERESTE TECHNEWS</h1>
                 </div>
                 <div class="flex items-center space-x-4">
-                     <button id="admin-toggle-button" title="Painel Administrativo" class="p-2 rounded-full text-white hover:bg-teal-500/50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-blue-900 focus:ring-white transition duration-300">
+                     <button id="admin-toggle-button" title="Painel Administrativo" class="p-2 rounded-full text-white hover:bg-teal-500/50 focus:outline-none">
                         <!-- Ícone é gerenciado via JS -->
                     </button>
                     <div class="flex items-center space-x-2">
                         <input type="text" id="search-input" placeholder="Buscar matéria..." class="bg-gray-700 border border-gray-600 rounded-lg px-3 py-1 text-white focus:outline-none focus:ring-2 focus:ring-teal-500 w-0 hidden">
                         <button id="search-button" title="Buscar" class="p-2 rounded-full text-white hover:bg-teal-500/50 focus:outline-none">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                             </svg>
                         </button>
@@ -112,7 +98,7 @@
             <!-- Blog View -->
             <div id="blog-view">
                 <div id="posts-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    <!-- Posts serão injetados aqui -->
+                    <p class="text-gray-500 col-span-full text-center">Carregando matérias...</p>
                 </div>
             </div>
             
@@ -124,70 +110,95 @@
 
             <!-- Admin View -->
             <div id="admin-view" class="hidden">
-                 <h2 class="text-3xl font-bold text-white mb-6 border-b-2 border-teal-500 pb-2 flex items-center">
-                    Painel Administrativo
-                    <span id="db-status" class="ml-4 h-4 w-4 rounded-full bg-yellow-500 animate-pulse" title="Conectando..."></span>
-                </h2>
+                <div class="flex justify-between items-center mb-8 border-b-2 border-gray-700 pb-4">
+                    <h2 class="text-3xl font-bold text-white flex items-center">
+                        Painel Administrativo
+                        <span id="db-status" class="ml-4 h-4 w-4 rounded-full bg-yellow-500 animate-pulse" title="Conectando..."></span>
+                    </h2>
+                    <button id="export-pdf-button" class="bg-indigo-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-indigo-700 transition duration-300 flex items-center space-x-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z" clip-rule="evenodd" /></svg>
+                        <span>Exportar Relatório</span>
+                    </button>
+                </div>
                 
-                <!-- Dashboard -->
-                <div id="dashboard" class="mb-12">
-                    <h3 class="text-2xl font-bold text-white mb-4">Dashboard de Performance</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <!-- KPI Cards serão injetados aqui -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- Coluna Esquerda: Editor -->
+                    <div class="lg:col-span-2">
+                         <div class="bg-gray-800 p-8 rounded-xl shadow-2xl">
+                            <h3 class="text-2xl font-bold text-white mb-6">Editor de Matérias</h3>
+                            <form id="post-form" class="space-y-6">
+                                <input type="hidden" id="post-id">
+                                <div>
+                                    <label for="title" class="block text-sm font-medium text-gray-300 mb-1">Título da Matéria</label>
+                                    <input type="text" id="title" placeholder="Ex: As novas tendências de IA para 2025" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-teal-500" required>
+                                </div>
+                                <div>
+                                    <label for="subtitle" class="block text-sm font-medium text-gray-300 mb-1">Subtítulo (Descrição Curta)</label>
+                                    <input type="text" id="subtitle" placeholder="Um resumo atrativo que aparecerá na listagem do blog" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-teal-500" required>
+                                </div>
+                                <div>
+                                    <label for="imageUrl" class="block text-sm font-medium text-gray-300 mb-1">URL da Imagem de Capa</label>
+                                    <input type="url" id="imageUrl" placeholder="Copie e cole o link de uma imagem online" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-teal-500" required>
+                                </div>
+                                <div>
+                                    <label for="content" class="block text-sm font-medium text-gray-300 mb-1">Conteúdo Completo</label>
+                                     <!-- Barra de Formatação -->
+                                    <div id="format-toolbar" class="flex items-center space-x-1 bg-gray-700 p-2 rounded-t-lg border-b border-gray-600 flex-wrap">
+                                        <button type="button" class="format-btn" data-format="bold" title="Negrito"><b>B</b></button>
+                                        <button type="button" class="format-btn" data-format="italic" title="Itálico"><i>I</i></button>
+                                        <button type="button" class="format-btn" data-format="strikethrough" title="Tachado"><del>S</del></button>
+                                        <div class="w-px h-5 bg-gray-600 mx-2"></div>
+                                        <button type="button" class="format-btn" data-format="h2" title="Título">H2</button>
+                                        <button type="button" class="format-btn" data-format="h3" title="Subtítulo">H3</button>
+                                        <div class="w-px h-5 bg-gray-600 mx-2"></div>
+                                        <button type="button" class="format-btn" data-format="link" title="Link"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M12.586 4.586a2 2 0 112.828 2.828l-3 3a2 2 0 01-2.828 0 1 1 0 00-1.414 1.414 4 4 0 005.656 0l3-3a4 4 0 00-5.656-5.656l-1.5 1.5a1 1 0 101.414 1.414l1.5-1.5zm-5 5a2 2 0 012.828 0 1 1 0 101.414-1.414 4 4 0 00-5.656 0l-3 3a4 4 0 105.656 5.656l1.5-1.5a1 1 0 10-1.414-1.414l-1.5 1.5a2 2 0 11-2.828-2.828l3-3z" clip-rule="evenodd" /></svg></button>
+                                        <button type="button" class="format-btn" data-format="blockquote" title="Citação"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M6 3a1 1 0 00-1 1v1.586l-2.293-2.293a1 1 0 00-1.414 1.414L3.586 6H2a1 1 0 00-1 1v6a1 1 0 001 1h1.586l-2.293 2.293a1 1 0 101.414 1.414L6 14.414V16a1 1 0 001 1h6a1 1 0 001-1v-1.586l2.293 2.293a1 1 0 101.414-1.414L14.414 14H16a1 1 0 001-1V7a1 1 0 00-1-1h-1.586l2.293-2.293a1 1 0 10-1.414-1.414L14 4.586V4a1 1 0 00-1-1H7a1 1 0 00-1 1z" /></svg></button>
+                                        <button type="button" class="format-btn" data-format="ul" title="Lista"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10zm0 5.25a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75a.75.75 0 01-.75-.75z" clip-rule="evenodd" /></svg></button>
+                                        <button type="button" class="format-btn" data-format="ol" title="Lista Numerada">1.</button>
+                                        <button type="button" class="format-btn" data-format="hr" title="Linha Horizontal"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 9h16.5m-16.5 6.75h16.5" /></svg></button>
+                                        <div class="w-px h-5 bg-gray-600 mx-2"></div>
+                                        <button type="button" class="format-btn" data-format="align-left" title="Alinhar à Esquerda"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10zm0 5.25A.75.75 0 012.75 15h9.5a.75.75 0 010 1.5H2.75a.75.75 0 01-.75-.75z" clip-rule="evenodd" /></svg></button>
+                                        <button type="button" class="format-btn" data-format="align-center" title="Centralizar"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10zm3.25 5.25a.75.75 0 01.75-.75h9.5a.75.75 0 010 1.5h-9.5a.75.75 0 01-.75-.75z" clip-rule="evenodd" /></svg></button>
+                                        <button type="button" class="format-btn" data-format="align-right" title="Alinhar à Direita"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10zm6.25 5.25a.75.75 0 01.75-.75h9.5a.75.75 0 010 1.5h-9.5a.75.75 0 01-.75-.75z" clip-rule="evenodd" /></svg></button>
+                                        <button type="button" class="format-btn" data-format="align-justify" title="Justificar"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10zm0 5.25a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75a.75.75 0 01-.75-.75z" clip-rule="evenodd" /></svg></button>
+                                    </div>
+                                    <textarea id="content" rows="15" placeholder="Escreva sua matéria aqui. Use a barra acima para formatar." class="w-full bg-gray-700 border border-gray-600 rounded-b-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-teal-500" required></textarea>
+                                </div>
+                                <div class="flex justify-end space-x-4">
+                                    <button type="button" id="cancel-edit-button" class="hidden bg-gray-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-gray-700 transition duration-300">Cancelar</button>
+                                    <button type="submit" id="submit-button" class="bg-teal-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-teal-700 transition duration-300">Publicar Matéria</button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
-                </div>
-
-                <div class="bg-gray-800 p-8 rounded-xl shadow-2xl max-w-4xl mx-auto">
-                    <h3 class="text-2xl font-bold text-white mb-6">Editor de Matérias</h3>
-                    <form id="post-form" class="space-y-6">
-                        <input type="hidden" id="post-id">
-                        <div>
-                            <label for="title" class="block text-sm font-medium text-gray-300 mb-1">Título da Matéria</label>
-                            <input type="text" id="title" placeholder="Ex: As novas tendências de IA para 2025" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-teal-500" required>
-                        </div>
-                        <div>
-                            <label for="subtitle" class="block text-sm font-medium text-gray-300 mb-1">Subtítulo (Descrição Curta)</label>
-                            <input type="text" id="subtitle" placeholder="Um resumo atrativo que aparecerá na listagem do blog" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-teal-500" required>
-                        </div>
-                        <div>
-                            <label for="imageUrl" class="block text-sm font-medium text-gray-300 mb-1">URL da Imagem de Capa</label>
-                            <input type="url" id="imageUrl" placeholder="Copie e cole o link de uma imagem online" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-teal-500" required>
-                        </div>
-                        <div>
-                            <label for="content" class="block text-sm font-medium text-gray-300 mb-1">Conteúdo Completo</label>
-                             <!-- Barra de Formatação -->
-                            <div id="format-toolbar" class="flex items-center space-x-1 bg-gray-700 p-2 rounded-t-lg border-b border-gray-600 flex-wrap">
-                                <button type="button" class="format-btn" data-format="bold" title="Negrito"><b>B</b></button>
-                                <button type="button" class="format-btn" data-format="italic" title="Itálico"><i>I</i></button>
-                                <button type="button" class="format-btn" data-format="strikethrough" title="Tachado"><del>S</del></button>
-                                <div class="w-px h-5 bg-gray-600 mx-2"></div>
-                                <button type="button" class="format-btn" data-format="h2" title="Título">H2</button>
-                                <button type="button" class="format-btn" data-format="h3" title="Subtítulo">H3</button>
-                                <div class="w-px h-5 bg-gray-600 mx-2"></div>
-                                <button type="button" class="format-btn" data-format="link" title="Link"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M12.586 4.586a2 2 0 112.828 2.828l-3 3a2 2 0 01-2.828 0 1 1 0 00-1.414 1.414 4 4 0 005.656 0l3-3a4 4 0 00-5.656-5.656l-1.5 1.5a1 1 0 101.414 1.414l1.5-1.5zm-5 5a2 2 0 012.828 0 1 1 0 101.414-1.414 4 4 0 00-5.656 0l-3 3a4 4 0 105.656 5.656l1.5-1.5a1 1 0 10-1.414-1.414l-1.5 1.5a2 2 0 11-2.828-2.828l3-3z" clip-rule="evenodd" /></svg></button>
-                                <button type="button" class="format-btn" data-format="blockquote" title="Citação"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M6 3a1 1 0 00-1 1v1.586l-2.293-2.293a1 1 0 00-1.414 1.414L3.586 6H2a1 1 0 00-1 1v6a1 1 0 001 1h1.586l-2.293 2.293a1 1 0 101.414 1.414L6 14.414V16a1 1 0 001 1h6a1 1 0 001-1v-1.586l2.293 2.293a1 1 0 101.414-1.414L14.414 14H16a1 1 0 001-1V7a1 1 0 00-1-1h-1.586l2.293-2.293a1 1 0 10-1.414-1.414L14 4.586V4a1 1 0 00-1-1H7a1 1 0 00-1 1z" /></svg></button>
-                                <button type="button" class="format-btn" data-format="ul" title="Lista"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10zm0 5.25a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75a.75.75 0 01-.75-.75z" clip-rule="evenodd" /></svg></button>
-                                <button type="button" class="format-btn" data-format="ol" title="Lista Numerada">1.</button>
-                                <button type="button" class="format-btn" data-format="hr" title="Linha Horizontal"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 9h16.5m-16.5 6.75h16.5" /></svg></button>
-                                <div class="w-px h-5 bg-gray-600 mx-2"></div>
-                                <button type="button" class="format-btn" data-format="align-left" title="Alinhar à Esquerda"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10zm0 5.25A.75.75 0 012.75 15h9.5a.75.75 0 010 1.5H2.75a.75.75 0 01-.75-.75z" clip-rule="evenodd" /></svg></button>
-                                <button type="button" class="format-btn" data-format="align-center" title="Centralizar"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10zm3.25 5.25a.75.75 0 01.75-.75h9.5a.75.75 0 010 1.5h-9.5a.75.75 0 01-.75-.75z" clip-rule="evenodd" /></svg></button>
-                                <button type="button" class="format-btn" data-format="align-right" title="Alinhar à Direita"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10zm6.25 5.25a.75.75 0 01.75-.75h9.5a.75.75 0 010 1.5h-9.5a.75.75 0 01-.75-.75z" clip-rule="evenodd" /></svg></button>
-                                <button type="button" class="format-btn" data-format="align-justify" title="Justificar"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10zm0 5.25a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75a.75.75 0 01-.75-.75z" clip-rule="evenodd" /></svg></button>
+                    <!-- Coluna Direita: Dashboard e Gerenciamento -->
+                    <div class="lg:col-span-1 space-y-8">
+                        <div id="dashboard-container">
+                            <h3 class="text-2xl font-bold text-white mb-4">Dashboard</h3>
+                            <div class="space-y-6">
+                                <!-- Gráfico de Matérias mais Lidas -->
+                                <div class="bg-gray-800 p-6 rounded-lg shadow-lg">
+                                    <h4 class="text-lg font-bold text-white mb-3">Top 5 Matérias Mais Lidas</h4>
+                                    <div id="top-posts-chart-container">
+                                        <canvas id="topPostsChart"></canvas>
+                                    </div>
+                                </div>
+                                <!-- Gráfico de Canais de Compartilhamento -->
+                                <div class="bg-gray-800 p-6 rounded-lg shadow-lg">
+                                    <h4 class="text-lg font-bold text-white mb-3">Canais de Compartilhamento</h4>
+                                    <div id="share-chart-container" class="max-w-xs mx-auto">
+                                        <canvas id="shareChannelsChart"></canvas>
+                                    </div>
+                                </div>
                             </div>
-                            <textarea id="content" rows="15" placeholder="Escreva sua matéria aqui. Use a barra acima para formatar." class="w-full bg-gray-700 border border-gray-600 rounded-b-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-teal-500" required></textarea>
                         </div>
-                        <div class="flex justify-end space-x-4">
-                            <button type="button" id="cancel-edit-button" class="hidden bg-gray-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-gray-700 transition duration-300">Cancelar</button>
-                            <button type="submit" id="submit-button" class="bg-teal-500 text-white font-bold py-2 px-6 rounded-lg hover:bg-teal-600 transition duration-300">Publicar Matéria</button>
-                        </div>
-                    </form>
-                </div>
 
-                <div class="mt-12 bg-gray-800 p-8 rounded-xl shadow-2xl max-w-4xl mx-auto">
-                    <h3 class="text-2xl font-bold text-white mb-6">Gerenciar Matérias</h3>
-                    <div id="admin-posts-list" class="space-y-4">
-                        <!-- Lista de posts para gerenciar será injetada aqui -->
+                        <div class="bg-gray-800 p-8 rounded-xl shadow-2xl">
+                            <h3 class="text-2xl font-bold text-white mb-6">Gerenciar Matérias</h3>
+                            <div id="admin-posts-list" class="space-y-4">
+                                <!-- Lista de posts para gerenciar será injetada aqui -->
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -213,7 +224,7 @@
         <!-- Auth Modal -->
         <div id="auth-modal" class="fixed inset-0 bg-black bg-opacity-75 backdrop-blur-sm flex items-center justify-center hidden z-50 p-4">
             <div id="auth-container" class="bg-gray-800 rounded-lg shadow-2xl p-8 max-w-sm w-full">
-                <!-- Conteúdo do Auth (Login/Setup) será injetado aqui -->
+                <!-- Conteúdo do Auth (Login) será injetado aqui -->
             </div>
         </div>
     </div>
@@ -221,8 +232,8 @@
     <script type="module">
         // Importações do Firebase
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getFirestore, collection, onSnapshot, addDoc, doc, getDoc, setDoc, updateDoc, deleteDoc, serverTimestamp, increment } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, onSnapshot, addDoc, doc, updateDoc, deleteDoc, serverTimestamp, increment } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
         // =================================================================================
         // SUAS CHAVES DO FIREBASE.
@@ -267,8 +278,10 @@
         const authModal = document.getElementById('auth-modal');
         const authContainer = document.getElementById('auth-container');
         const heroBanner = document.getElementById('hero-banner');
-        const dashboardContainer = document.querySelector('#dashboard .grid');
-
+        const exportPdfButton = document.getElementById('export-pdf-button');
+        
+        let topPostsChartInstance = null;
+        let shareChannelsChartInstance = null;
         let currentView = 'blog';
         let postsCollection;
         let allPosts = [];
@@ -321,32 +334,21 @@
                 await signOut(auth);
                 showNotification("Você saiu da sua conta.");
             } else {
-                const adminConfigRef = doc(db, 'config', 'admin');
-                const docSnap = await getDoc(adminConfigRef);
-                const adminExists = docSnap.exists();
-                
-                if (adminExists) {
-                     authContainer.innerHTML = `
-                        <h3 class="text-xl font-bold text-white mb-6 text-center">Acesso Administrativo</h3>
-                        <form id="login-form" class="space-y-4">
-                            <div><label for="email" class="block text-sm font-medium text-gray-300 mb-1">Email</label><input type="email" id="email" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" required></div>
-                            <div><label for="password" class="block text-sm font-medium text-gray-300 mb-1">Senha</label><input type="password" id="password" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" required></div>
-                            <p id="auth-error" class="text-red-500 text-sm hidden"></p>
-                            <div class="pt-2"><button type="submit" class="w-full bg-teal-500 text-white font-bold py-2 px-6 rounded-lg hover:bg-teal-600">Entrar</button></div>
-                        </form>`;
-                    document.getElementById('login-form').addEventListener('submit', handleLogin);
-                } else {
-                     authContainer.innerHTML = `
-                        <h3 class="text-xl font-bold text-white mb-4 text-center">Criar Conta de Administrador</h3>
-                        <p class="text-sm text-gray-400 mb-6 text-center">Este é o primeiro acesso. Crie sua conta de administrador.</p>
-                        <form id="setup-form" class="space-y-4">
-                            <div><label for="setup-email" class="block text-sm font-medium text-gray-300 mb-1">Email</label><input type="email" id="setup-email" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" required></div>
-                            <div><label for="setup-password" class="block text-sm font-medium text-gray-300 mb-1">Senha</label><input type="password" id="setup-password" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" required></div>
-                            <p id="setup-error" class="text-red-500 text-sm hidden"></p>
-                            <div class="pt-2"><button type="submit" class="w-full bg-teal-500 text-white font-bold py-2 px-6 rounded-lg hover:bg-teal-600">Criar e Acessar</button></div>
-                        </form>`;
-                    document.getElementById('setup-form').addEventListener('submit', handleSetup);
-                }
+                authContainer.innerHTML = `
+                    <h3 class="text-xl font-bold text-white mb-6 text-center">Acesso Administrativo</h3>
+                    <form id="login-form" class="space-y-4">
+                        <div>
+                            <label for="email" class="block text-sm font-medium text-gray-300 mb-1">Email</label>
+                            <input type="email" id="email" class="w-full bg-gray-100 text-gray-900 border border-gray-600 rounded-lg px-4 py-2" required>
+                        </div>
+                        <div>
+                            <label for="password" class="block text-sm font-medium text-gray-300 mb-1">Senha</label>
+                            <input type="password" id="password" class="w-full bg-gray-100 text-gray-900 border border-gray-600 rounded-lg px-4 py-2" required>
+                        </div>
+                        <p id="auth-error" class="text-red-500 text-sm hidden"></p>
+                        <div class="pt-2"><button type="submit" class="w-full bg-teal-500 text-white font-bold py-2 px-6 rounded-lg hover:bg-teal-600">Entrar</button></div>
+                    </form>`;
+                document.getElementById('login-form').addEventListener('submit', handleLogin);
                 authModal.classList.remove('hidden');
             }
         });
@@ -366,30 +368,6 @@
                     errorEl.classList.remove('hidden');
                 });
         }
-
-        function handleSetup(e) {
-             e.preventDefault();
-            const email = e.target['setup-email'].value;
-            const password = e.target['setup-password'].value;
-            const errorEl = document.getElementById('setup-error');
-            createUserWithEmailAndPassword(auth, email, password)
-                .then(userCredential => {
-                    const adminConfigRef = doc(db, 'config', 'admin');
-                    return setDoc(adminConfigRef, { adminUid: userCredential.user.uid });
-                })
-                .then(() => {
-                    authModal.classList.add('hidden');
-                    errorEl.classList.add('hidden');
-                    showNotification("Conta de administrador criada com sucesso!");
-                })
-                .catch(error => {
-                    let msg = "Erro ao criar conta.";
-                    if (error.code === 'auth/weak-password') msg = "A senha deve ter pelo menos 6 caracteres.";
-                    if (error.code === 'auth/email-already-in-use') msg = "Este email já está em uso.";
-                    errorEl.textContent = msg;
-                    errorEl.classList.remove('hidden');
-                });
-        }
         
         authModal.addEventListener('click', e => { if (e.target === authModal) authModal.classList.add('hidden'); });
 
@@ -406,6 +384,7 @@
             } else if (view === 'admin' && auth.currentUser) {
                 adminView.classList.remove('hidden');
                 updateHistory({view: 'admin'}, window.location.pathname);
+                renderDashboard();
             } else if (view === 'single-post' && postId) {
                 const post = allPosts.find(p => p.id === postId);
                 if(post) {
@@ -438,7 +417,7 @@
         function renderBlogPosts(posts) {
             postsContainer.innerHTML = '';
             if (posts.length === 0) {
-                 postsContainer.innerHTML = `<p class="text-gray-400 col-span-full text-center">Nenhuma matéria encontrada.</p>`;
+                 postsContainer.innerHTML = `<p class="text-gray-500 col-span-full text-center">Nenhuma matéria encontrada.</p>`;
                 return;
             }
             posts.forEach(post => {
@@ -446,7 +425,7 @@
                 postElement.className = 'bg-gray-800 rounded-xl shadow-lg overflow-hidden transform hover:-translate-y-2 transition duration-300 cursor-pointer flex flex-col';
                 postElement.dataset.id = post.id;
                 postElement.innerHTML = `
-                    <img class="h-56 w-full object-cover" src="${post.imageUrl}" alt="" onerror="this.onerror=null;this.src='https://placehold.co/600x400/020617/14b8a6?text=Imagem';">
+                    <img class="h-56 w-full object-cover" src="${post.imageUrl}" alt="" onerror="this.onerror=null;this.src='https://placehold.co/600x400/1e293b/d1d5db?text=Imagem';">
                     <div class="p-6 flex flex-col flex-grow">
                         <h2 class="text-2xl font-black text-teal-400 mb-2 flex-grow">${post.title}</h2>
                         <p class="text-gray-400 mb-4">${post.subtitle}</p>
@@ -517,8 +496,8 @@
         function renderSinglePost(post) {
             singlePostView.innerHTML = `
                 <div class="max-w-4xl mx-auto">
-                    <button id="back-to-blog" class="mb-8 text-teal-400 hover:text-teal-300">&larr; Voltar para todas as matérias</button>
-                    <img class="h-96 w-full object-cover rounded-xl mb-8" src="${post.imageUrl}" alt="" onerror="this.onerror=null;this.src='https://placehold.co/1200x600/020617/14b8a6?text=Imagem';">
+                    <button id="back-to-blog" class="mb-8 text-teal-400 hover:text-teal-500">&larr; Voltar para todas as matérias</button>
+                    <img class="h-96 w-full object-cover rounded-xl mb-8" src="${post.imageUrl}" alt="" onerror="this.onerror=null;this.src='https://placehold.co/1200x600/1e293b/d1d5db?text=Imagem';">
                     <div class="flex justify-between items-center mb-4">
                          <div class="text-gray-400">
                             <span>Publicado em ${formatDate(post.createdAt)}</span> &bull;
@@ -535,7 +514,7 @@
                     </div>
                     <h1 class="text-5xl font-black text-white mb-4">${post.title}</h1>
                     <p class="text-xl text-gray-400 mb-8">${post.subtitle}</p>
-                    <div class="prose prose-invert max-w-none text-gray-300 content-prose">${parseMarkdown(post.content)}</div>
+                    <div class="prose max-w-none text-gray-300 content-prose">${parseMarkdown(post.content)}</div>
                 </div>`;
             document.getElementById('back-to-blog').addEventListener('click', () => setView('blog'));
             setupShareButtons(post);
@@ -547,13 +526,13 @@
             posts.forEach(post => {
                 const item = document.createElement('div');
                 const isVisible = post.isVisible !== false;
-                item.className = `bg-gray-700 p-4 rounded-lg flex justify-between items-center transition-opacity duration-300 ${isVisible ? 'opacity-100' : 'opacity-50'}`;
+                item.className = `bg-gray-700 p-4 rounded-lg flex justify-between items-center transition-opacity duration-300 ${isVisible ? 'opacity-100' : 'opacity-60'}`;
                 item.innerHTML = `
                     <p class="text-white flex-1 truncate pr-4">${post.title}</p>
                     <div class="flex items-center space-x-4 flex-shrink-0">
                         <div class="flex items-center text-sm text-gray-400" title="Visualizações"><svg class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z" /><path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.022 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" /></svg><span>${post.viewCount || 0}</span></div>
                         <div class="flex items-center text-sm text-gray-400" title="Compartilhamentos"><svg class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor"><path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z" /></svg><span>${post.shareCount || 0}</span></div>
-                        <div class="flex items-center space-x-2"><button data-id="${post.id}" data-visible="${isVisible}" class="toggle-visibility-btn p-2 rounded hover:bg-gray-600" title="${isVisible ? 'Ocultar' : 'Publicar'}">${isVisible ? `<svg class="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z" /><path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.022 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" /></svg>` : `<svg class="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a1 1 0 001.414-1.414l-1.414-1.414A10.004 10.004 0 00-1.172-1.172L3.707 2.293zm4.78 4.78a2 2 0 012.828 0l.001.001a2 2 0 11-2.829-2.828l-.001-.001zM10 12a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" /><path d="M10 3a10.004 10.004 0 00-7.293 3.293l1.414 1.414A8.005 8.005 0 0110 5c2.485 0 4.733 1.116 6.182 2.872l1.414-1.414A10.004 10.004 0 0010 3zM1.458 10c1.274 4.057 5.022 7 9.542 7 .848 0 1.673-.105 2.468-.305l-1.44-1.44a8.01 8.01 0 01-1.028.145c-4.418 0-7.98-2.686-9.08-6.195a8.004 8.004 0 012.336-5.111L1.458 10z" /></svg>`}</button><button data-id="${post.id}" class="edit-btn p-2 rounded bg-blue-600" title="Editar"><svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" /><path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd" /></svg></button><button data-id="${post.id}" class="delete-btn p-2 rounded bg-red-600" title="Excluir"><svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" /></svg></button></div>
+                        <div class="flex items-center space-x-2"><button data-id="${post.id}" data-visible="${isVisible}" class="toggle-visibility-btn p-2 rounded hover:bg-gray-600" title="${isVisible ? 'Ocultar' : 'Publicar'}">${isVisible ? `<svg class="h-5 w-5 text-green-500" viewBox="0 0 20 20" fill="currentColor"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z" /><path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.022 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" /></svg>` : `<svg class="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a1 1 0 001.414-1.414l-1.414-1.414A10.004 10.004 0 00-1.172-1.172L3.707 2.293zm4.78 4.78a2 2 0 012.828 0l.001.001a2 2 0 11-2.829-2.828l-.001-.001zM10 12a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" /><path d="M10 3a10.004 10.004 0 00-7.293 3.293l1.414 1.414A8.005 8.005 0 0110 5c2.485 0 4.733 1.116 6.182 2.872l1.414-1.414A10.004 10.004 0 0010 3zM1.458 10c1.274 4.057 5.022 7 9.542 7 .848 0 1.673-.105 2.468-.305l-1.44-1.44a8.01 8.01 0 01-1.028.145c-4.418 0-7.98-2.686-9.08-6.195a8.004 8.004 0 012.336-5.111L1.458 10z" /></svg>`}</button><button data-id="${post.id}" class="edit-btn p-2 rounded bg-blue-600 text-white" title="Editar"><svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" /><path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd" /></svg></button><button data-id="${post.id}" class="delete-btn p-2 rounded bg-red-600 text-white" title="Excluir"><svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" /></svg></button></div>
                     </div>
                 `;
                 adminPostsList.appendChild(item);
@@ -562,23 +541,82 @@
         
         // --- Dashboard ---
         function renderDashboard() {
-            if (!dashboardContainer || !auth.currentUser) return;
+            if (!auth.currentUser) return;
+
+            const textColor = '#d1d5db';
+            const gridColor = 'rgba(255, 255, 255, 0.1)';
+
+            // Top Posts Chart
             const topPosts = [...allPosts].sort((a,b) => (b.viewCount || 0) - (a.viewCount || 0)).slice(0, 5);
-            let topPostsHTML = topPosts.map(p => `<li class="flex justify-between items-center text-sm"><span>${p.title}</span> <span class="font-bold">${p.viewCount || 0}</span></li>`).join('');
-            const shareChannels = {}, totalShares = allPosts.reduce((acc, post) => {
-                if(post.shareChannels) Object.entries(post.shareChannels).forEach(([k,v]) => shareChannels[k] = (shareChannels[k] || 0) + v);
-                return acc + (post.shareCount || 0);
-            }, 0);
-            const topChannel = Object.entries(shareChannels).sort((a,b) => b[1] - a[1])[0];
-            dashboardContainer.innerHTML = `
-                <div class="bg-gray-800 p-6 rounded-lg">
-                    <h4 class="text-lg font-bold text-white mb-3">Matérias Mais Lidas</h4>
-                    <ul class="space-y-2 text-gray-300">${topPostsHTML || '<li>Nenhuma visualização ainda.</li>'}</ul>
-                </div>
-                <div class="bg-gray-800 p-6 rounded-lg">
-                    <h4 class="text-lg font-bold text-white mb-3">Engajamento</h4>
-                    <div class="text-center"><p class="text-gray-400 text-sm">Canal Mais Popular</p><p class="text-3xl font-black text-teal-400 capitalize">${topChannel ? topChannel[0] : '-'}</p><p class="text-gray-400 text-sm mb-4">${topChannel ? topChannel[1] + ' vezes' : ''}</p><p class="text-gray-400 text-sm">Total de Compartilhamentos</p><p class="text-3xl font-black text-teal-400">${totalShares}</p></div>
-                </div>`;
+            const topPostsChartContainer = document.getElementById('top-posts-chart-container');
+
+            if (topPostsChartContainer) {
+                if (topPosts.length > 0 && topPosts.some(p => p.viewCount > 0)) {
+                    topPostsChartContainer.innerHTML = '<canvas id="topPostsChart"></canvas>';
+                    const topPostsCtx = document.getElementById('topPostsChart').getContext('2d');
+                    if (topPostsChartInstance) topPostsChartInstance.destroy();
+                    topPostsChartInstance = new Chart(topPostsCtx, {
+                        type: 'bar',
+                        data: {
+                            labels: topPosts.map(p => p.title.substring(0, 20) + (p.title.length > 20 ? '...' : '')),
+                            datasets: [{
+                                label: 'Visualizações',
+                                data: topPosts.map(p => p.viewCount || 0),
+                                backgroundColor: '#14b8a6'
+                            }]
+                        },
+                        options: {
+                            indexAxis: 'y', responsive: true, plugins: { legend: { display: false } },
+                            scales: {
+                                y: { ticks: { color: textColor }, grid: { color: gridColor } },
+                                x: { ticks: { color: textColor }, grid: { color: gridColor } }
+                            }
+                        }
+                    });
+                } else {
+                     if (topPostsChartInstance) topPostsChartInstance.destroy();
+                    topPostsChartContainer.innerHTML = '<p class="text-center text-gray-500 py-10">Nenhuma visualização registrada ainda.</p>';
+                }
+            }
+
+
+            // Share Channels Chart
+            const shareChannels = allPosts.reduce((acc, post) => {
+                if(post.shareChannels) Object.entries(post.shareChannels).forEach(([k,v]) => acc[k] = (acc[k] || 0) + v);
+                return acc;
+            }, {});
+            
+            const shareChartContainer = document.getElementById('share-chart-container');
+            if (shareChartContainer) {
+                if (Object.keys(shareChannels).length > 0) {
+                    shareChartContainer.innerHTML = '<canvas id="shareChannelsChart"></canvas>';
+                    const shareChannelsCtx = document.getElementById('shareChannelsChart').getContext('2d');
+                    if (shareChannelsChartInstance) shareChannelsChartInstance.destroy();
+                    shareChannelsChartInstance = new Chart(shareChannelsCtx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: Object.keys(shareChannels).map(k => k.charAt(0).toUpperCase() + k.slice(1)),
+                            datasets: [{
+                                data: Object.values(shareChannels),
+                                backgroundColor: ['#1d9bf0', '#1877f2', '#25d366', '#0a66c2', '#e4405f', '#7f8c8d'],
+                                borderColor: '#1f2937'
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                legend: {
+                                    position: 'top',
+                                    labels: { color: textColor }
+                                }
+                            }
+                        }
+                    });
+                } else {
+                    if (shareChannelsChartInstance) shareChannelsChartInstance.destroy();
+                    shareChartContainer.innerHTML = '<p class="text-center text-gray-500 py-10">Nenhum compartilhamento registrado ainda.</p>';
+                }
+            }
         }
 
 
@@ -809,12 +847,12 @@
             const postTitle = post.title;
 
             shareOptions.innerHTML = `
-                <a href="https://api.whatsapp.com/send?text=${encodeURIComponent(postTitle + ' - ' + postUrl)}" target="_blank" data-channel="whatsapp" rel="noopener noreferrer" class="share-link flex items-center w-full px-4 py-3 text-sm text-white hover:bg-teal-600">WhatsApp</a>
-                <a href="https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(postUrl)}" target="_blank" data-channel="facebook" rel="noopener noreferrer" class="share-link flex items-center w-full px-4 py-3 text-sm text-white hover:bg-teal-600">Facebook</a>
-                <a href="https://twitter.com/intent/tweet?url=${encodeURIComponent(postUrl)}&text=${encodeURIComponent(postTitle)}" target="_blank" data-channel="twitter" rel="noopener noreferrer" class="share-link flex items-center w-full px-4 py-3 text-sm text-white hover:bg-teal-600">Twitter / X</a>
-                <a href="https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(postUrl)}" target="_blank" data-channel="linkedin" rel="noopener noreferrer" class="share-link flex items-center w-full px-4 py-3 text-sm text-white hover:bg-teal-600">LinkedIn</a>
-                <button data-channel="instagram" class="share-btn w-full text-left flex items-center px-4 py-3 text-sm text-white hover:bg-teal-600">Instagram</button>
-                <button data-channel="copy" class="share-btn w-full text-left flex items-center px-4 py-3 text-sm text-white hover:bg-teal-600">Copiar Link</button>`;
+                <a href="https://api.whatsapp.com/send?text=${encodeURIComponent(postTitle + ' - ' + postUrl)}" target="_blank" data-channel="whatsapp" rel="noopener noreferrer" class="share-link flex items-center w-full px-4 py-2 text-sm text-white hover:bg-gray-600">WhatsApp</a>
+                <a href="https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(postUrl)}" target="_blank" data-channel="facebook" rel="noopener noreferrer" class="share-link flex items-center w-full px-4 py-2 text-sm text-white hover:bg-gray-600">Facebook</a>
+                <a href="https://twitter.com/intent/tweet?url=${encodeURIComponent(postUrl)}&text=${encodeURIComponent(postTitle)}" target="_blank" data-channel="twitter" rel="noopener noreferrer" class="share-link flex items-center w-full px-4 py-2 text-sm text-white hover:bg-gray-600">Twitter / X</a>
+                <a href="https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(postUrl)}" target="_blank" data-channel="linkedin" rel="noopener noreferrer" class="share-link flex items-center w-full px-4 py-2 text-sm text-white hover:bg-gray-600">LinkedIn</a>
+                <button data-channel="instagram" class="share-btn w-full text-left flex items-center px-4 py-2 text-sm text-white hover:bg-gray-600">Instagram</button>
+                <button data-channel="copy" class="share-btn w-full text-left flex items-center px-4 py-2 text-sm text-white hover:bg-gray-600">Copiar Link</button>`;
 
             shareToggleButton.addEventListener('click', (e) => { e.stopPropagation(); shareOptions.classList.toggle('hidden'); });
             
@@ -836,9 +874,60 @@
         
         document.addEventListener('click', (e) => {
             const shareOptions = document.getElementById('share-options');
-            if (shareOptions && !shareOptions.classList.contains('hidden') && !shareOptions.contains(e.target) && !document.getElementById('share-toggle-button').contains(e.target)) {
+            if (shareOptions && !shareOptions.classList.contains('hidden') && !shareOptions.contains(e.target) && !document.getElementById('share-toggle-button')?.contains(e.target)) {
                 shareOptions.classList.add('hidden');
             }
+        });
+
+        // --- Lógica de Exportação para PDF ---
+        exportPdfButton.addEventListener('click', () => {
+            if(!allPosts.length) {
+                showNotification("Não há dados para exportar.", true);
+                return;
+            }
+
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            doc.setFontSize(20);
+            doc.text("Relatório de Performance - Evereste TechNews", 10, 20);
+            doc.setFontSize(12);
+            doc.text(`Gerado em: ${new Date().toLocaleDateString('pt-BR')}`, 10, 28);
+
+            const topPostsCanvas = document.getElementById('topPostsChart');
+            const shareChannelsCanvas = document.getElementById('shareChannelsChart');
+            
+            doc.setFontSize(16);
+            doc.text("Top 5 Matérias Mais Lidas", 10, 40);
+            if (topPostsChartInstance) {
+                 doc.addImage(topPostsCanvas.toDataURL('image/png', 1.0), 'PNG', 10, 45, 180, 90);
+            }
+
+            doc.text("Canais de Compartilhamento", 10, 150);
+            if(shareChannelsChartInstance) {
+                doc.addImage(shareChannelsCanvas.toDataURL('image/png', 1.0), 'PNG', 10, 155, 80, 80);
+            }
+            
+
+            doc.addPage();
+            doc.setFontSize(16);
+            doc.text("Relatório Detalhado de Matérias", 10, 20);
+            
+            const tableData = allPosts.map(post => [
+                post.title,
+                post.viewCount || 0,
+                post.shareCount || 0,
+                post.isVisible !== false ? 'Visível' : 'Oculto'
+            ]);
+
+            doc.autoTable({
+                startY: 30,
+                head: [['Título', 'Visualizações', 'Compartilhamentos', 'Status']],
+                body: tableData,
+                headStyles: { fillColor: [22, 163, 74] },
+            });
+
+            doc.save(`relatorio-evereste-technews-${new Date().toISOString().slice(0,10)}.pdf`);
         });
         
     </script>
