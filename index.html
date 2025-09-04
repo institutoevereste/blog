@@ -297,15 +297,11 @@
         onAuthStateChanged(auth, user => {
             updateAdminButtonIcon(user);
             if (user) {
-                if (currentView !== 'admin') {
-                    setView('admin');
-                }
+                if (currentView !== 'admin') setView('admin');
                 renderAdminList(allPosts);
                 renderDashboard();
             } else {
-                if (currentView === 'admin') {
-                    setView('blog');
-                }
+                if (currentView === 'admin') setView('blog');
             }
         });
 
@@ -320,19 +316,37 @@
             }
         }
         
-        adminToggleButton.addEventListener('click', () => {
+        adminToggleButton.addEventListener('click', async () => {
             if (auth.currentUser) {
-                signOut(auth).then(() => showNotification("Você saiu da sua conta."));
+                await signOut(auth);
+                showNotification("Você saiu da sua conta.");
             } else {
-                authContainer.innerHTML = `
-                    <h3 class="text-xl font-bold text-white mb-6 text-center">Acesso Administrativo</h3>
-                    <form id="login-form" class="space-y-4">
-                        <div><label for="email" class="block text-sm font-medium text-gray-300 mb-1">Email</label><input type="email" id="email" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" required></div>
-                        <div><label for="password" class="block text-sm font-medium text-gray-300 mb-1">Senha</label><input type="password" id="password" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" required></div>
-                        <p id="auth-error" class="text-red-500 text-sm hidden"></p>
-                        <div class="pt-2"><button type="submit" class="w-full bg-teal-500 text-white font-bold py-2 px-6 rounded-lg hover:bg-teal-600">Entrar</button></div>
-                    </form>`;
-                document.getElementById('login-form').addEventListener('submit', handleLogin);
+                const adminConfigRef = doc(db, 'config', 'admin');
+                const docSnap = await getDoc(adminConfigRef);
+                const adminExists = docSnap.exists();
+                
+                if (adminExists) {
+                     authContainer.innerHTML = `
+                        <h3 class="text-xl font-bold text-white mb-6 text-center">Acesso Administrativo</h3>
+                        <form id="login-form" class="space-y-4">
+                            <div><label for="email" class="block text-sm font-medium text-gray-300 mb-1">Email</label><input type="email" id="email" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" required></div>
+                            <div><label for="password" class="block text-sm font-medium text-gray-300 mb-1">Senha</label><input type="password" id="password" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" required></div>
+                            <p id="auth-error" class="text-red-500 text-sm hidden"></p>
+                            <div class="pt-2"><button type="submit" class="w-full bg-teal-500 text-white font-bold py-2 px-6 rounded-lg hover:bg-teal-600">Entrar</button></div>
+                        </form>`;
+                    document.getElementById('login-form').addEventListener('submit', handleLogin);
+                } else {
+                     authContainer.innerHTML = `
+                        <h3 class="text-xl font-bold text-white mb-4 text-center">Criar Conta de Administrador</h3>
+                        <p class="text-sm text-gray-400 mb-6 text-center">Este é o primeiro acesso. Crie sua conta de administrador.</p>
+                        <form id="setup-form" class="space-y-4">
+                            <div><label for="setup-email" class="block text-sm font-medium text-gray-300 mb-1">Email</label><input type="email" id="setup-email" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" required></div>
+                            <div><label for="setup-password" class="block text-sm font-medium text-gray-300 mb-1">Senha</label><input type="password" id="setup-password" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" required></div>
+                            <p id="setup-error" class="text-red-500 text-sm hidden"></p>
+                            <div class="pt-2"><button type="submit" class="w-full bg-teal-500 text-white font-bold py-2 px-6 rounded-lg hover:bg-teal-600">Criar e Acessar</button></div>
+                        </form>`;
+                    document.getElementById('setup-form').addEventListener('submit', handleSetup);
+                }
                 authModal.classList.remove('hidden');
             }
         });
@@ -349,6 +363,30 @@
                 })
                 .catch(error => { 
                     errorEl.textContent = "Email não autorizado ou senha incorreta."; 
+                    errorEl.classList.remove('hidden');
+                });
+        }
+
+        function handleSetup(e) {
+             e.preventDefault();
+            const email = e.target['setup-email'].value;
+            const password = e.target['setup-password'].value;
+            const errorEl = document.getElementById('setup-error');
+            createUserWithEmailAndPassword(auth, email, password)
+                .then(userCredential => {
+                    const adminConfigRef = doc(db, 'config', 'admin');
+                    return setDoc(adminConfigRef, { adminUid: userCredential.user.uid });
+                })
+                .then(() => {
+                    authModal.classList.add('hidden');
+                    errorEl.classList.add('hidden');
+                    showNotification("Conta de administrador criada com sucesso!");
+                })
+                .catch(error => {
+                    let msg = "Erro ao criar conta.";
+                    if (error.code === 'auth/weak-password') msg = "A senha deve ter pelo menos 6 caracteres.";
+                    if (error.code === 'auth/email-already-in-use') msg = "Este email já está em uso.";
+                    errorEl.textContent = msg;
                     errorEl.classList.remove('hidden');
                 });
         }
@@ -481,15 +519,26 @@
                 <div class="max-w-4xl mx-auto">
                     <button id="back-to-blog" class="mb-8 text-teal-400 hover:text-teal-300">&larr; Voltar para todas as matérias</button>
                     <img class="h-96 w-full object-cover rounded-xl mb-8" src="${post.imageUrl}" alt="" onerror="this.onerror=null;this.src='https://placehold.co/1200x600/020617/14b8a6?text=Imagem';">
-                    <div class="flex justify-between items-center mb-4 text-gray-400">
-                        <span>Publicado em ${formatDate(post.createdAt)}</span>
-                        <span>${calculateReadingTime(post.content)}</span>
+                    <div class="flex justify-between items-center mb-4">
+                         <div class="text-gray-400">
+                            <span>Publicado em ${formatDate(post.createdAt)}</span> &bull;
+                            <span>${calculateReadingTime(post.content)}</span>
+                        </div>
+                        <div class="relative">
+                            <button id="share-toggle-button" title="Compartilhar" class="bg-gray-700 hover:bg-teal-500 text-white font-bold p-3 rounded-full transition duration-300">
+                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12s-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.368a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
+                                </svg>
+                            </button>
+                            <div id="share-options" class="hidden absolute right-0 mt-2 w-48 bg-gray-700 rounded-lg shadow-xl z-20 overflow-hidden"></div>
+                        </div>
                     </div>
                     <h1 class="text-5xl font-black text-white mb-4">${post.title}</h1>
                     <p class="text-xl text-gray-400 mb-8">${post.subtitle}</p>
                     <div class="prose prose-invert max-w-none text-gray-300 content-prose">${parseMarkdown(post.content)}</div>
                 </div>`;
             document.getElementById('back-to-blog').addEventListener('click', () => setView('blog'));
+            setupShareButtons(post);
         }
         
         function renderAdminList(posts) {
@@ -567,6 +616,16 @@
         initializeAppLogic();
         
         // --- Funções de Analytics ---
+        async function incrementShareCount(postId, channel) {
+            try {
+                const postRef = doc(db, 'posts', postId);
+                await updateDoc(postRef, {
+                    [`shareChannels.${channel}`]: increment(1),
+                    shareCount: increment(1)
+                });
+            } catch (error) { console.error("Error updating share count:", error); }
+        }
+
         async function incrementViewCount(postId) {
             try {
                 await updateDoc(doc(db, 'posts', postId), { viewCount: increment(1) });
@@ -739,6 +798,49 @@
             textarea.setRangeText(replacement, start, end, 'end');
             textarea.focus();
         });
+        
+        // --- Lógica de Compartilhamento ---
+        function setupShareButtons(post) {
+            const shareToggleButton = document.getElementById('share-toggle-button');
+            const shareOptions = document.getElementById('share-options');
+            if (!shareToggleButton || !shareOptions) return;
+
+            const postUrl = `${window.location.origin}${window.location.pathname}#${post.id}`;
+            const postTitle = post.title;
+
+            shareOptions.innerHTML = `
+                <a href="https://api.whatsapp.com/send?text=${encodeURIComponent(postTitle + ' - ' + postUrl)}" target="_blank" data-channel="whatsapp" rel="noopener noreferrer" class="share-link flex items-center w-full px-4 py-3 text-sm text-white hover:bg-teal-600">WhatsApp</a>
+                <a href="https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(postUrl)}" target="_blank" data-channel="facebook" rel="noopener noreferrer" class="share-link flex items-center w-full px-4 py-3 text-sm text-white hover:bg-teal-600">Facebook</a>
+                <a href="https://twitter.com/intent/tweet?url=${encodeURIComponent(postUrl)}&text=${encodeURIComponent(postTitle)}" target="_blank" data-channel="twitter" rel="noopener noreferrer" class="share-link flex items-center w-full px-4 py-3 text-sm text-white hover:bg-teal-600">Twitter / X</a>
+                <a href="https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(postUrl)}" target="_blank" data-channel="linkedin" rel="noopener noreferrer" class="share-link flex items-center w-full px-4 py-3 text-sm text-white hover:bg-teal-600">LinkedIn</a>
+                <button data-channel="instagram" class="share-btn w-full text-left flex items-center px-4 py-3 text-sm text-white hover:bg-teal-600">Instagram</button>
+                <button data-channel="copy" class="share-btn w-full text-left flex items-center px-4 py-3 text-sm text-white hover:bg-teal-600">Copiar Link</button>`;
+
+            shareToggleButton.addEventListener('click', (e) => { e.stopPropagation(); shareOptions.classList.toggle('hidden'); });
+            
+            shareOptions.addEventListener('click', (e) => {
+                const target = e.target.closest('.share-link, .share-btn');
+                if (target) {
+                    const channel = target.dataset.channel;
+                    incrementShareCount(post.id, channel);
+                    if(channel === 'instagram' || channel === 'copy') {
+                        navigator.clipboard.writeText(postUrl).then(() => { 
+                            const msg = channel === 'instagram' ? 'Link copiado! Cole no seu story ou post.' : 'Link da matéria copiado!';
+                            showNotification(msg); 
+                            shareOptions.classList.add('hidden'); 
+                        });
+                    }
+                }
+            });
+        }
+        
+        document.addEventListener('click', (e) => {
+            const shareOptions = document.getElementById('share-options');
+            if (shareOptions && !shareOptions.classList.contains('hidden') && !shareOptions.contains(e.target) && !document.getElementById('share-toggle-button').contains(e.target)) {
+                shareOptions.classList.add('hidden');
+            }
+        });
+        
     </script>
 </body>
 </html>
