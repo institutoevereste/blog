@@ -89,7 +89,7 @@
 
         <!-- Hero Banner -->
         <div id="hero-banner" class="w-full mb-8">
-            <img src="https://i.postimg.cc/HxMK4LR8/CAPA-BLOG-EVERESTE-1.png" alt="Banner Evereste TechNews com o logo e o texto 'O Futuro é Agora'" class="w-full h-auto object-cover">
+            <img src="https://i.postimg.cc/tRt9YYVS/CAPA-BLOG-EVERESTE-4.png" alt="Banner Evereste TechNews com o logo e o texto 'O Futuro é Agora'" class="w-full h-auto object-cover">
         </div>
 
 
@@ -739,7 +739,10 @@
                 try {
                     await updateDoc(doc(db, 'posts', id), { isVisible: newVisibility });
                     showNotification(`Matéria ${newVisibility ? 'visível' : 'ocultada'}.`);
-                } catch (error) { showNotification('Erro ao atualizar.', true); }
+                } catch (error) { 
+                    console.error("UPDATE VISIBILITY ERROR: ", error);
+                    showNotification('Erro ao atualizar. Verifique as regras do Firestore.', true);
+                }
             }
             
             if (button.classList.contains('delete-btn')) {
@@ -933,4 +936,5 @@
     </script>
 </body>
 </html>
+
 
